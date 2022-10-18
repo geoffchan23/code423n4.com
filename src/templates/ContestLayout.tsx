@@ -80,14 +80,14 @@ const ContestLayout = (props) => {
 
   // !!Live judging
   useEffect(() => {
-    console.log("called");
     const repoName = findingsRepo.split("https://github.com/code-423n4/")[1];
-    const localUrl = `http://localhost:8888/api/v0/constestStatus?repo_name=${repoName}`;
-    console.log(repoName);
+    const localCallContest = `http://localhost:8888/api/v0/constestStatus?repo_name=${repoName}`;
+    const localCallJudges = `http://localhost:8888/api/v0/getJudges?repo_name=${repoName}`;
+
     async function fetchContestStatus(): Promise<{
       overviewGrid: OverviewData;
     }> {
-      const res = await fetch(localUrl, {
+      const res = await fetch(localCallContest, {
         method: "POST",
         // body: JSON.stringify({ token: token }),
       });
@@ -95,14 +95,27 @@ const ContestLayout = (props) => {
         throw new Error("Wrong Repo");
       }
       const response = await res.json();
-      console.log(response);
       return { overviewGrid: response.overviewGrid };
     }
+
+    async function fetchJudges() {
+      const res = await fetch(localCallJudges, {
+        method: "POST",
+        // body: JSON.stringify({ token: token }),
+      });
+      if (!res.ok) {
+        throw new Error("Wrong Repo");
+      }
+      const response = await res.json();
+      return { judges: response.judges };
+    }
+    fetchJudges().then(res => {
+      console.log(res);
+    })
     fetchContestStatus().then((response) =>
       setContestOverview(response.overviewGrid)
     );
   }, []);
-  console.log(contestOverview);
 
   useEffect(() => {
     (async () => {
@@ -326,60 +339,59 @@ const ContestLayout = (props) => {
               </TabPanel>
             )}
 
-            {/* // !! LIVE JUDGING */}
-            {contestOverview !== null ? (
-              <TabPanel>
-                <div className="contest-wrapper">
-                  <table className="c4-table">
-                    <thead>
-                      <tr>
-                        <th className="c4-table-cell">{""}</th>
-                        <th className="c4-table-cell c4-title">High</th>
-                        <th className="c4-table-cell c4-title">Medium</th>
-                        <th className="c4-table-cell c4-title">QA</th>
-                        <th className="c4-table-cell c4-title">Gas</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td className="c4-table-cell c4-title">Total</td>
-                        <td className="c4-table-cell">
-                          {contestOverview.total?.H || 0}
-                        </td>
-                        <td className="c4-table-cell">
-                          {contestOverview.total?.M || 0}
-                        </td>
-                        <td className="c4-table-cell">
-                          {contestOverview.total?.QA || 0}
-                        </td>
-                        <td className="c4-table-cell">
-                          {contestOverview.total?.Gas || 0}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="c4-table-cell c4-title">Dupes</td>
-                        <td className="c4-table-cell">
-                          {contestOverview.dupesID?.H || 0}
-                        </td>
-                        <td className="c4-table-cell">
-                          {contestOverview.dupesID?.M || 0}
-                        </td>
-                        <td className="c4-table-cell">
-                          {contestOverview.dupesID?.QA || 0}
-                        </td>
-                        <td className="c4-table-cell">
-                          {contestOverview.dupesID?.Gas || 0}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </TabPanel>
-            ) : (
-              <TabPanel>
-                <h2>nope</h2>
-              </TabPanel>
-            )}
+            <TabPanel>
+              <div className="contest-wrapper">
+                {contestOverview !== null ? (
+                  <>
+                    <table className="c4-table">
+                      <thead>
+                        <tr>
+                          <th className="c4-table-cell">{""}</th>
+                          <th className="c4-table-cell c4-title">High</th>
+                          <th className="c4-table-cell c4-title">Medium</th>
+                          <th className="c4-table-cell c4-title">QA</th>
+                          <th className="c4-table-cell c4-title">Gas</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td className="c4-table-cell c4-title">Total</td>
+                          <td className="c4-table-cell">
+                            {contestOverview.total.H}
+                          </td>
+                          <td className="c4-table-cell">
+                            {contestOverview.total.M}
+                          </td>
+                          <td className="c4-table-cell">
+                            {contestOverview.total.QA}
+                          </td>
+                          <td className="c4-table-cell">
+                            {contestOverview.total.Gas}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="c4-table-cell c4-title">Dupes</td>
+                          <td className="c4-table-cell">
+                            {contestOverview.dupesID.H}
+                          </td>
+                          <td className="c4-table-cell">
+                            {contestOverview.dupesID.M}
+                          </td>
+                          <td className="c4-table-cell">
+                            {contestOverview.dupesID.QA}
+                          </td>
+                          <td className="c4-table-cell">
+                            {contestOverview.dupesID.Gas}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </>
+                ) : (
+                  ""
+                )}
+              </div>
+            </TabPanel>
           </Tabs>
         </section>
       </ClientOnly>

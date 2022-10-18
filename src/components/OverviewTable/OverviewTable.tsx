@@ -5,7 +5,6 @@ import "./OverviewTable.css";
 const OverviewTable: React.FC<{ overviewData: OverviewData }> = ({
   overviewData,
 }) => {
-  console.log(overviewData);
   return (
     <table className="c4-table">
       <thead>
@@ -20,17 +19,17 @@ const OverviewTable: React.FC<{ overviewData: OverviewData }> = ({
       <tbody>
         <tr>
           <td className="c4-table-cell c4-title">Total</td>
-          <td className="c4-table-cell">{overviewData.total.H}</td>
-          <td className="c4-table-cell">{overviewData.total.M}</td>
-          <td className="c4-table-cell">{overviewData.total.QA}</td>
-          <td className="c4-table-cell">{overviewData.total.Gas}</td>
+          <td className="c4-table-cell">{overviewData.total?.H || 0}</td>
+          <td className="c4-table-cell">{overviewData.total?.M || 0}</td>
+          <td className="c4-table-cell">{overviewData.total?.QA || 0}</td>
+          <td className="c4-table-cell">{overviewData.total?.Gas || 0}</td>
         </tr>
         <tr>
           <td className="c4-table-cell c4-title">Dupes</td>
-          <td className="c4-table-cell">{overviewData.dupesID.H}</td>
-          <td className="c4-table-cell">{overviewData.dupesID.M}</td>
-          <td className="c4-table-cell">{overviewData.dupesID.QA}</td>
-          <td className="c4-table-cell">{overviewData.dupesID.Gas}</td>
+          <td className="c4-table-cell">{overviewData.dupesID?.H || 0}</td>
+          <td className="c4-table-cell">{overviewData.dupesID?.M || 0}</td>
+          <td className="c4-table-cell">{overviewData.dupesID?.QA || 0}</td>
+          <td className="c4-table-cell">{overviewData.dupesID?.Gas || 0}</td>
         </tr>
       </tbody>
     </table>
