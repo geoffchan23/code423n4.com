@@ -9,7 +9,7 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 
 // types
-import { FindingsResponse } from "../../types/finding";
+import { FindingsResponse, OverviewData } from "../../types/finding";
 // helpers
 import { getDates } from "../utils/time";
 // hooks
@@ -24,6 +24,7 @@ import WardenDetails from "../components/WardenDetails";
 import ReactMarkdown from "react-markdown";
 // styles
 import * as styles from "../components/reporter/widgets/Widgets.module.scss";
+import OverviewTable from "../components/OverviewTable/OverviewTable";
 
 enum FindingsStatus {
   Fetching = "fetching",
@@ -42,6 +43,8 @@ const ContestLayout = (props) => {
     FindingsStatus.Fetching
   );
   const [errorMessage, setErrorMessage] = useState<string>("");
+  //!! live judging
+  const [contestStatus, setContestStatus] = useState<OverviewData | null>(null);
 
   // hooks
   const { currentUser } = useUser();
@@ -73,7 +76,7 @@ const ContestLayout = (props) => {
       : `/reports/${props.data.markdownRemark.frontmatter.slug}`;
   }
 
-  // Live judging
+  // !!Live judging
   const repoName = findingsRepo.split('https://github.com/code-423n4/')[1];
   const localUrl = `http://localhost:8888/api/v0/constestStatus?repo_name=${repoName}`;
   const fetchContestStatus = async () => {
@@ -85,9 +88,13 @@ const ContestLayout = (props) => {
       throw new Error("Wrong Repo");
     }
     const response = await res.json();
-    console.log(response)
+    return response.overviewGrid;
   }
-  fetchContestStatus()
+
+  useEffect(() => {
+    fetchContestStatus().then(response => setContestStatus(response));
+  });
+  console.log(contestStatus);
 
 
   useEffect(() => {
@@ -311,11 +318,16 @@ const ContestLayout = (props) => {
               </TabPanel>
             )}
             {/* //TODO ADD condition for live judging tab */}
-            <TabPanel>
-              <div className="contest-wrapper">
-                <h3> Live judging </h3>
-              </div>
-            </TabPanel>
+            {
+              contestStatus ?
+              <TabPanel>
+                <div className="contest-wrapper">
+                  <OverviewTable overviewData={contestStatus} />
+                </div>
+              </TabPanel>
+
+              : ""
+            }
           </Tabs>
         </section>
       </ClientOnly>

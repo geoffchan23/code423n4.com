@@ -1,5 +1,5 @@
 import React from "react";
-import { OverviewData } from "../../utils/types";
+import { OverviewData } from "../../../types/finding";
 import "./OverviewTable.css";
 
 const OverviewTable: React.FC<{ overviewData: OverviewData }> = ({

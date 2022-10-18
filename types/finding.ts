@@ -55,3 +55,14 @@ export interface FindingDeleteRequest {
   risk: string;
   emailAddresses: string[];
 }
+
+export interface TotalData {
+  H: number;
+  M: number;
+  QA: number;
+  Gas: number;
+}
+export interface OverviewData {
+  total: TotalData;
+  dupesID: TotalData;
+}
