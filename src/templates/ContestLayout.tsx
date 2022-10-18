@@ -73,6 +73,23 @@ const ContestLayout = (props) => {
       : `/reports/${props.data.markdownRemark.frontmatter.slug}`;
   }
 
+  // Live judging
+  const repoName = findingsRepo.split('https://github.com/code-423n4/')[1];
+  const localUrl = `http://localhost:8888/api/v0/constestStatus?repo_name=${repoName}`;
+  const fetchContestStatus = async () => {
+    const res = await fetch(localUrl, {
+      method: "POST",
+      // body: JSON.stringify({ token: token }),
+    });
+    if (!res.ok) {
+      throw new Error("Wrong Repo");
+    }
+    const response = await res.json();
+    console.log(response)
+  }
+  fetchContestStatus()
+
+
   useEffect(() => {
     (async () => {
       if (currentUser.isLoggedIn) {
@@ -214,6 +231,8 @@ const ContestLayout = (props) => {
               )}
               <Tab>Details</Tab>
               {t.contestStatus === "active" && <Tab>Findings</Tab>}
+              {/* // TODO add condition for live judging */}
+              {t.contestStatus === "active" && <Tab>Live judging</Tab>}
             </TabList>
 
             {props.data.leaderboardFindings.findings.length > 0 && (
@@ -291,6 +310,12 @@ const ContestLayout = (props) => {
                 </div>
               </TabPanel>
             )}
+            {/* //TODO ADD condition for live judging tab */}
+            <TabPanel>
+              <div className="contest-wrapper">
+                <h3> Live judging </h3>
+              </div>
+            </TabPanel>
           </Tabs>
         </section>
       </ClientOnly>
