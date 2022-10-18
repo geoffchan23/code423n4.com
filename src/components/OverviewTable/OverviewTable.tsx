@@ -5,6 +5,7 @@ import "./OverviewTable.css";
 const OverviewTable: React.FC<{ overviewData: OverviewData }> = ({
   overviewData,
 }) => {
+  console.log(overviewData);
   return (
     <table className="c4-table">
       <thead>

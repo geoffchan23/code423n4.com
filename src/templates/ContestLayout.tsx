@@ -44,7 +44,9 @@ const ContestLayout = (props) => {
   );
   const [errorMessage, setErrorMessage] = useState<string>("");
   //!! live judging
-  const [contestStatus, setContestStatus] = useState<OverviewData | null>(null);
+  const [contestOverview, setContestOverview] = useState<OverviewData | null>(
+    null
+  );
 
   // hooks
   const { currentUser } = useUser();
@@ -77,25 +79,30 @@ const ContestLayout = (props) => {
   }
 
   // !!Live judging
-  const repoName = findingsRepo.split('https://github.com/code-423n4/')[1];
-  const localUrl = `http://localhost:8888/api/v0/constestStatus?repo_name=${repoName}`;
-  const fetchContestStatus = async () => {
-    const res = await fetch(localUrl, {
-      method: "POST",
-      // body: JSON.stringify({ token: token }),
-    });
-    if (!res.ok) {
-      throw new Error("Wrong Repo");
-    }
-    const response = await res.json();
-    return response.overviewGrid;
-  }
-
   useEffect(() => {
-    fetchContestStatus().then(response => setContestStatus(response));
-  });
-  console.log(contestStatus);
-
+    console.log("called");
+    const repoName = findingsRepo.split("https://github.com/code-423n4/")[1];
+    const localUrl = `http://localhost:8888/api/v0/constestStatus?repo_name=${repoName}`;
+    console.log(repoName);
+    async function fetchContestStatus(): Promise<{
+      overviewGrid: OverviewData;
+    }> {
+      const res = await fetch(localUrl, {
+        method: "POST",
+        // body: JSON.stringify({ token: token }),
+      });
+      if (!res.ok) {
+        throw new Error("Wrong Repo");
+      }
+      const response = await res.json();
+      console.log(response);
+      return { overviewGrid: response.overviewGrid };
+    }
+    fetchContestStatus().then((response) =>
+      setContestOverview(response.overviewGrid)
+    );
+  }, []);
+  console.log(contestOverview);
 
   useEffect(() => {
     (async () => {
@@ -238,8 +245,9 @@ const ContestLayout = (props) => {
               )}
               <Tab>Details</Tab>
               {t.contestStatus === "active" && <Tab>Findings</Tab>}
-              {/* // TODO add condition for live judging */}
-              {t.contestStatus === "active" && <Tab>Live judging</Tab>}
+              {/* //  !! LIVE JUDGING */}
+              {/* {contestOverview ? <Tab>Live judging</Tab> : ""} */}
+              <Tab>Live judging</Tab>
             </TabList>
 
             {props.data.leaderboardFindings.findings.length > 0 && (
@@ -317,17 +325,61 @@ const ContestLayout = (props) => {
                 </div>
               </TabPanel>
             )}
-            {/* //TODO ADD condition for live judging tab */}
-            {
-              contestStatus ?
+
+            {/* // !! LIVE JUDGING */}
+            {contestOverview !== null ? (
               <TabPanel>
                 <div className="contest-wrapper">
-                  <OverviewTable overviewData={contestStatus} />
+                  <table className="c4-table">
+                    <thead>
+                      <tr>
+                        <th className="c4-table-cell">{""}</th>
+                        <th className="c4-table-cell c4-title">High</th>
+                        <th className="c4-table-cell c4-title">Medium</th>
+                        <th className="c4-table-cell c4-title">QA</th>
+                        <th className="c4-table-cell c4-title">Gas</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="c4-table-cell c4-title">Total</td>
+                        <td className="c4-table-cell">
+                          {contestOverview.total?.H || 0}
+                        </td>
+                        <td className="c4-table-cell">
+                          {contestOverview.total?.M || 0}
+                        </td>
+                        <td className="c4-table-cell">
+                          {contestOverview.total?.QA || 0}
+                        </td>
+                        <td className="c4-table-cell">
+                          {contestOverview.total?.Gas || 0}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="c4-table-cell c4-title">Dupes</td>
+                        <td className="c4-table-cell">
+                          {contestOverview.dupesID?.H || 0}
+                        </td>
+                        <td className="c4-table-cell">
+                          {contestOverview.dupesID?.M || 0}
+                        </td>
+                        <td className="c4-table-cell">
+                          {contestOverview.dupesID?.QA || 0}
+                        </td>
+                        <td className="c4-table-cell">
+                          {contestOverview.dupesID?.Gas || 0}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </TabPanel>
-
-              : ""
-            }
+            ) : (
+              <TabPanel>
+                <h2>nope</h2>
+              </TabPanel>
+            )}
           </Tabs>
         </section>
       </ClientOnly>
