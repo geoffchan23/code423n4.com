@@ -62,7 +62,8 @@ const ContestLayout = (props) => {
   // !!Live judging
   const {
     contestOverview,
-    judges
+    judges,
+    status
   } = fields;
 
   const { markdownRemark } = props.data;
@@ -115,7 +116,7 @@ const ContestLayout = (props) => {
       }
     })();
   }, [currentUser, contestid]);
-
+  console.log(status)
   return (
     <DefaultLayout
       pageTitle={pageTitle}
@@ -221,8 +222,7 @@ const ContestLayout = (props) => {
               <Tab>Details</Tab>
               {t.contestStatus === "active" && <Tab>Findings</Tab>}
               {/* //  !! LIVE JUDGING */}
-              {/* {contestOverview ? <Tab>Live judging</Tab> : ""} */}
-              <Tab>Live judging</Tab>
+              {(t.contestStatus === "active" || status === "Judging" || status === "Needs judging") && <Tab>Live judging</Tab>}
             </TabList>
 
             {props.data.leaderboardFindings.findings.length > 0 && (
@@ -303,16 +303,14 @@ const ContestLayout = (props) => {
 
             <TabPanel>
               <div className="contest-wrapper">
-                {contestOverview !== null ? (
+                {(status === "Active" || status === "Judging" || status === "Needs judging") ? (
                   <>
                     {judges && judges.length > 0 ? judges.map((judge,index) => (
                       <p key={index}>{judge}</p>
                     )) : ''}
                     <OverviewTable overviewData={contestOverview} />
                   </>
-                ) : (
-                  ""
-                )}
+                ): ''}
               </div>
             </TabPanel>
           </Tabs>
@@ -345,6 +343,7 @@ export const query = graphql`
         contestPath
         artPath
         judges
+        status
         contestOverview {
           total {
             H
