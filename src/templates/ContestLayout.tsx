@@ -47,6 +47,7 @@ const ContestLayout = (props) => {
   const [contestOverview, setContestOverview] = useState<OverviewData | null>(
     null
   );
+  const [judges, setJudges] = useState<string[]>([]);
 
   // hooks
   const { currentUser } = useUser();
@@ -109,13 +110,14 @@ const ContestLayout = (props) => {
       const response = await res.json();
       return { judges: response.judges };
     }
-    fetchJudges().then(res => {
-      console.log(res);
-    })
+    fetchJudges().then((res) => {
+      setJudges(res.judges);
+    });
     fetchContestStatus().then((response) =>
       setContestOverview(response.overviewGrid)
     );
   }, []);
+  console.log(judges)
 
   useEffect(() => {
     (async () => {
@@ -343,49 +345,10 @@ const ContestLayout = (props) => {
               <div className="contest-wrapper">
                 {contestOverview !== null ? (
                   <>
-                    <table className="c4-table">
-                      <thead>
-                        <tr>
-                          <th className="c4-table-cell">{""}</th>
-                          <th className="c4-table-cell c4-title">High</th>
-                          <th className="c4-table-cell c4-title">Medium</th>
-                          <th className="c4-table-cell c4-title">QA</th>
-                          <th className="c4-table-cell c4-title">Gas</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td className="c4-table-cell c4-title">Total</td>
-                          <td className="c4-table-cell">
-                            {contestOverview.total.H}
-                          </td>
-                          <td className="c4-table-cell">
-                            {contestOverview.total.M}
-                          </td>
-                          <td className="c4-table-cell">
-                            {contestOverview.total.QA}
-                          </td>
-                          <td className="c4-table-cell">
-                            {contestOverview.total.Gas}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="c4-table-cell c4-title">Dupes</td>
-                          <td className="c4-table-cell">
-                            {contestOverview.dupesID.H}
-                          </td>
-                          <td className="c4-table-cell">
-                            {contestOverview.dupesID.M}
-                          </td>
-                          <td className="c4-table-cell">
-                            {contestOverview.dupesID.QA}
-                          </td>
-                          <td className="c4-table-cell">
-                            {contestOverview.dupesID.Gas}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                    {judges.length > 0 ? judges.map((judge,index) => (
+                      <p key={index}>{judge}</p>
+                    )) : ''}
+                    <OverviewTable overviewData={contestOverview} />
                   </>
                 ) : (
                   ""
