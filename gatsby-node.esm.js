@@ -73,6 +73,44 @@ const getContestData = async () => {
   }
 };
 
+//!! live judging
+// const repoName = findingsRepo.split("https://github.com/code-423n4/")[1];
+const localCallContest = `http://localhost:8888/api/v0/constestStatus?repo_name=`;
+const localCallJudges = `http://localhost:8888/api/v0/getJudges?repo_name=`;
+
+async function fetchContestOverviewData(repoName) {
+  const res = await fetch(`${localCallContest}${repoName}`, {
+    method: "POST",
+    // body: JSON.stringify({ token: token }),
+  });
+  let response;
+  if (res.ok) {
+    response = await res.json();
+  } else {
+    response = {
+      overviewGrid: {
+        total: { H: 0, M: 0, QA: 0, Gas: 0 },
+        dupesID: { H: 0, M: 0, QA: 0, Gas: 0 },
+      },
+    };
+  }
+  return response;
+}
+
+async function fetchJudges(repoName) {
+  const res = await fetch(`${localCallJudges}${repoName}`, {
+    method: "POST",
+    // body: JSON.stringify({ token: token }),
+  });
+  let response;
+  if (res.ok) {
+    response = await res.json();
+  } else {
+    response = { judges: [] };
+  }
+  return response;
+}
+
 const graphqlWithAuth = graphql.defaults({
   headers: {
     authorization: `Bearer ${token}`,
@@ -236,16 +274,33 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
   const { createNodeField } = actions;
   const nodes = await getNodes();
   const result = await getContestData();
-
-  nodes.forEach((node, index) => {
+  nodes.forEach(async (node, index) => {
     if (node.internal.type === `ContestsCsv`) {
+      const repoName = node.findingsRepo.split(
+        "https://github.com/code-423n4/"
+      )[1];
+      const responseOverview = await fetchContestOverviewData(repoName);
+      const responseJudges = await fetchJudges(repoName);
+
       const status = result.filter(
         (element) => element.contestId === node.contestid
       );
+      console.log(status[0].status);
       createNodeField({
         node,
         name: `status`,
         value: status.length > 0 ? status[0].status : undefined,
+      });
+      // TODO : do this only if the process is != completed != pre-contest
+      createNodeField({
+        node,
+        name: `judges`,
+        value: responseJudges.judges,
+      });
+      createNodeField({
+        node,
+        name: `contestOverview`,
+        value: responseOverview.overviewGrid
       });
     }
   });
@@ -253,7 +308,6 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
 
 exports.createPages = async ({ graphql, actions }) => {
   const { createPage } = actions;
-
   const contests = await graphql(queries.contests);
   const formTemplate = path.resolve("./src/templates/ReportForm.tsx");
   const contestTemplate = path.resolve("./src/templates/ContestLayout.tsx");

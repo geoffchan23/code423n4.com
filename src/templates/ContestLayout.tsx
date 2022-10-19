@@ -80,44 +80,43 @@ const ContestLayout = (props) => {
   }
 
   // !!Live judging
-  useEffect(() => {
-    const repoName = findingsRepo.split("https://github.com/code-423n4/")[1];
-    const localCallContest = `http://localhost:8888/api/v0/constestStatus?repo_name=${repoName}`;
-    const localCallJudges = `http://localhost:8888/api/v0/getJudges?repo_name=${repoName}`;
+  // useEffect(() => {
+  //   const repoName = findingsRepo.split("https://github.com/code-423n4/")[1];
+  //   const localCallContest = `http://localhost:8888/api/v0/constestStatus?repo_name=${repoName}`;
+  //   const localCallJudges = `http://localhost:8888/api/v0/getJudges?repo_name=${repoName}`;
 
-    async function fetchContestStatus(): Promise<{
-      overviewGrid: OverviewData;
-    }> {
-      const res = await fetch(localCallContest, {
-        method: "POST",
-        // body: JSON.stringify({ token: token }),
-      });
-      if (!res.ok) {
-        throw new Error("Wrong Repo");
-      }
-      const response = await res.json();
-      return { overviewGrid: response.overviewGrid };
-    }
+  //   async function fetchContestStatus(): Promise<{
+  //     overviewGrid: OverviewData;
+  //   }> {
+  //     const res = await fetch(localCallContest, {
+  //       method: "POST",
+  //       // body: JSON.stringify({ token: token }),
+  //     });
+  //     if (!res.ok) {
+  //       throw new Error("Wrong Repo");
+  //     }
+  //     const response = await res.json();
+  //     return { overviewGrid: response.overviewGrid };
+  //   }
 
-    async function fetchJudges() {
-      const res = await fetch(localCallJudges, {
-        method: "POST",
-        // body: JSON.stringify({ token: token }),
-      });
-      if (!res.ok) {
-        throw new Error("Wrong Repo");
-      }
-      const response = await res.json();
-      return { judges: response.judges };
-    }
-    fetchJudges().then((res) => {
-      setJudges(res.judges);
-    });
-    fetchContestStatus().then((response) =>
-      setContestOverview(response.overviewGrid)
-    );
-  }, []);
-  console.log(judges)
+  //   async function fetchJudges() {
+  //     const res = await fetch(localCallJudges, {
+  //       method: "POST",
+  //       // body: JSON.stringify({ token: token }),
+  //     });
+  //     if (!res.ok) {
+  //       throw new Error("Wrong Repo");
+  //     }
+  //     const response = await res.json();
+  //     return { judges: response.judges };
+  //   }
+  //   fetchJudges().then((res) => {
+  //     setJudges(res.judges);
+  //   });
+  //   fetchContestStatus().then((response) =>
+  //     setContestOverview(response.overviewGrid)
+  //   );
+  // }, []);
 
   useEffect(() => {
     (async () => {
@@ -384,6 +383,21 @@ export const query = graphql`
         readmeContent
         contestPath
         artPath
+        judges
+        contestOverview {
+          total {
+            H
+            M
+            QA
+            Gas
+          }
+          dupesID {
+            H
+            M
+            QA
+            Gas
+          }
+        }
       }
       hide
       league
