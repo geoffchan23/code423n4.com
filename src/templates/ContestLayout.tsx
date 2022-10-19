@@ -9,7 +9,7 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 
 // types
-import { FindingsResponse, OverviewData } from "../../types/finding";
+import { FindingsResponse } from "../../types/finding";
 // helpers
 import { getDates } from "../utils/time";
 // hooks
@@ -22,9 +22,9 @@ import DefaultLayout from "./DefaultLayout";
 import FindingsList from "../components/FindingsList";
 import WardenDetails from "../components/WardenDetails";
 import ReactMarkdown from "react-markdown";
+import OverviewTable from "../components/OverviewTable/OverviewTable";
 // styles
 import * as styles from "../components/reporter/widgets/Widgets.module.scss";
-import OverviewTable from "../components/OverviewTable/OverviewTable";
 
 enum FindingsStatus {
   Fetching = "fetching",
@@ -60,11 +60,7 @@ const ContestLayout = (props) => {
     contestid,
   } = props.data.contestsCsv;
   // !!Live judging
-  const {
-    contestOverview,
-    judges,
-    status
-  } = fields;
+  const { contestOverview, judges, status } = fields;
 
   const { markdownRemark } = props.data;
 
@@ -116,7 +112,7 @@ const ContestLayout = (props) => {
       }
     })();
   }, [currentUser, contestid]);
-  console.log(status)
+  console.log(props.data.contestsCsv);
   return (
     <DefaultLayout
       pageTitle={pageTitle}
@@ -222,7 +218,10 @@ const ContestLayout = (props) => {
               <Tab>Details</Tab>
               {t.contestStatus === "active" && <Tab>Findings</Tab>}
               {/* //  !! LIVE JUDGING */}
-              {(t.contestStatus === "active" || status === "Judging" || status === "Needs judging") && <Tab>Live judging</Tab>}
+              {(t.contestStatus === "active" ||
+                status === "Active" ||
+                status === "Judging" ||
+                status === "Needs judging") && <Tab>Live judging</Tab>}
             </TabList>
 
             {props.data.leaderboardFindings.findings.length > 0 && (
@@ -303,14 +302,27 @@ const ContestLayout = (props) => {
 
             <TabPanel>
               <div className="contest-wrapper">
-                {(status === "Active" || status === "Judging" || status === "Needs judging") ? (
-                  <>
-                    {judges && judges.length > 0 ? judges.map((judge,index) => (
-                      <p key={index}>{judge}</p>
-                    )) : ''}
-                    <OverviewTable overviewData={contestOverview} />
-                  </>
-                ): ''}
+                {(t.contestStatus === "active" ||
+                  status === "Active" ||
+                  status === "Judging" ||
+                  status === "Needs judging") && (
+                  <div>
+                    <div>
+                      <h2>Judges:</h2>
+                      <ul>
+                        {judges && judges.length > 0
+                          ? judges.map((judge, index) => (
+                              <li key={index}>{judge}</li>
+                            ))
+                          : ""}
+
+                      </ul>
+                    </div>
+                    <div>
+                      <OverviewTable overviewData={contestOverview} />
+                    </div>
+                  </div>
+                )}
               </div>
             </TabPanel>
           </Tabs>

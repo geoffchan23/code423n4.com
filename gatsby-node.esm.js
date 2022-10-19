@@ -297,7 +297,6 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
           "https://github.com/code-423n4/"
         )[1];
         const responseOverview = await fetchContestOverviewData(repoName);
-        // console.log("Running for contest:", repoName, "with the following overview", responseOverview)
         const responseJudges = await fetchJudges(repoName);
         createNodeField({
           node,
