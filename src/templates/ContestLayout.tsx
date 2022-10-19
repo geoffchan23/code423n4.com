@@ -43,11 +43,6 @@ const ContestLayout = (props) => {
     FindingsStatus.Fetching
   );
   const [errorMessage, setErrorMessage] = useState<string>("");
-  //!! live judging
-  const [contestOverview, setContestOverview] = useState<OverviewData | null>(
-    null
-  );
-  const [judges, setJudges] = useState<string[]>([]);
 
   // hooks
   const { currentUser } = useUser();
@@ -64,6 +59,11 @@ const ContestLayout = (props) => {
     end_time,
     contestid,
   } = props.data.contestsCsv;
+  // !!Live judging
+  const {
+    contestOverview,
+    judges
+  } = fields;
 
   const { markdownRemark } = props.data;
 
@@ -78,45 +78,6 @@ const ContestLayout = (props) => {
       ? markdownRemark.frontmatter.altUrl
       : `/reports/${props.data.markdownRemark.frontmatter.slug}`;
   }
-
-  // !!Live judging
-  // useEffect(() => {
-  //   const repoName = findingsRepo.split("https://github.com/code-423n4/")[1];
-  //   const localCallContest = `http://localhost:8888/api/v0/constestStatus?repo_name=${repoName}`;
-  //   const localCallJudges = `http://localhost:8888/api/v0/getJudges?repo_name=${repoName}`;
-
-  //   async function fetchContestStatus(): Promise<{
-  //     overviewGrid: OverviewData;
-  //   }> {
-  //     const res = await fetch(localCallContest, {
-  //       method: "POST",
-  //       // body: JSON.stringify({ token: token }),
-  //     });
-  //     if (!res.ok) {
-  //       throw new Error("Wrong Repo");
-  //     }
-  //     const response = await res.json();
-  //     return { overviewGrid: response.overviewGrid };
-  //   }
-
-  //   async function fetchJudges() {
-  //     const res = await fetch(localCallJudges, {
-  //       method: "POST",
-  //       // body: JSON.stringify({ token: token }),
-  //     });
-  //     if (!res.ok) {
-  //       throw new Error("Wrong Repo");
-  //     }
-  //     const response = await res.json();
-  //     return { judges: response.judges };
-  //   }
-  //   fetchJudges().then((res) => {
-  //     setJudges(res.judges);
-  //   });
-  //   fetchContestStatus().then((response) =>
-  //     setContestOverview(response.overviewGrid)
-  //   );
-  // }, []);
 
   useEffect(() => {
     (async () => {
@@ -344,7 +305,7 @@ const ContestLayout = (props) => {
               <div className="contest-wrapper">
                 {contestOverview !== null ? (
                   <>
-                    {judges.length > 0 ? judges.map((judge,index) => (
+                    {judges && judges.length > 0 ? judges.map((judge,index) => (
                       <p key={index}>{judge}</p>
                     )) : ''}
                     <OverviewTable overviewData={contestOverview} />

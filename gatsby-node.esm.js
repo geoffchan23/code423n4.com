@@ -276,32 +276,40 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
   const result = await getContestData();
   nodes.forEach(async (node, index) => {
     if (node.internal.type === `ContestsCsv`) {
-      const repoName = node.findingsRepo.split(
-        "https://github.com/code-423n4/"
-      )[1];
-      const responseOverview = await fetchContestOverviewData(repoName);
-      const responseJudges = await fetchJudges(repoName);
-
       const status = result.filter(
         (element) => element.contestId === node.contestid
       );
-      console.log(status[0].status);
+
       createNodeField({
         node,
         name: `status`,
         value: status.length > 0 ? status[0].status : undefined,
       });
-      // TODO : do this only if the process is != completed != pre-contest
-      createNodeField({
-        node,
-        name: `judges`,
-        value: responseJudges.judges,
-      });
-      createNodeField({
-        node,
-        name: `contestOverview`,
-        value: responseOverview.overviewGrid
-      });
+
+      // TODO : make sure these condition are OK or need other status
+      if (
+        status.length > 0 &&
+        (status[0].status === "Active" ||
+        status[0].status === "Judging" ||
+        status[0].status === "Needs Judging")
+      ) {
+        const repoName = node.findingsRepo.split(
+          "https://github.com/code-423n4/"
+        )[1];
+        const responseOverview = await fetchContestOverviewData(repoName);
+        // console.log("Running for contest:", repoName, "with the following overview", responseOverview)
+        const responseJudges = await fetchJudges(repoName);
+        createNodeField({
+          node,
+          name: `judges`,
+          value: responseJudges.judges,
+        });
+        createNodeField({
+          node,
+          name: `contestOverview`,
+          value: responseOverview.overviewGrid,
+        });
+      }
     }
   });
 };
