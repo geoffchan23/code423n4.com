@@ -19,6 +19,7 @@ type ContestsCsvFields implements Node @dontInfer {
   status: String
   judges: [String]
   contestOverview: OverviewData
+  totalIssues: Int
 }`;
 
 export default ContestsCsvFields;

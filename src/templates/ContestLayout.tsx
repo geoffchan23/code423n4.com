@@ -60,8 +60,7 @@ const ContestLayout = (props) => {
     contestid,
   } = props.data.contestsCsv;
   // !!Live judging
-  const { contestOverview, judges, status } = fields;
-
+  const { contestOverview, judges, status, totalIssues } = fields;
   const { markdownRemark } = props.data;
 
   const t = getDates(start_time, end_time);
@@ -308,6 +307,10 @@ const ContestLayout = (props) => {
                   status === "Needs judging") && (
                   <div>
                     <div>
+                      <h2>Total issues:</h2>
+                      <p>{totalIssues}</p>
+                    </div>
+                    <div>
                       <h2>Judges:</h2>
                       <ul>
                         {judges && judges.length > 0
@@ -356,6 +359,7 @@ export const query = graphql`
         artPath
         judges
         status
+        totalIssues
         contestOverview {
           total {
             H
