@@ -24,3 +24,6 @@
 [functions]
   directory = "netlify/functions/"
   included_files = ["_data/contests/*", "_data/handles/*.json"]
+
+[functions."hourly-deploy"]
+schedule = "@hourly"

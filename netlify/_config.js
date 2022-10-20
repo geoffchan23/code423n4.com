@@ -10,4 +10,5 @@ module.exports = {
   moralisAppId: process.env.GATSBY_MORALIS_APP_ID,
   kickboxApiKey: process.env.KICKBOX_API_KEY,
   JWTSignature: process.env.JSON_WEB_TOKEN_SIGNATURE,
+  PostNetlifyUrl: process.env.POST_DEPLOY_URL
 };
