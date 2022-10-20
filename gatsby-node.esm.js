@@ -8,7 +8,12 @@ import SchemaCustomization from "./schema";
 import jwt from "jsonwebtoken";
 // Notion
 import { Client } from "@notionhq/client";
-const { token, notionToken, notionContestDb, JWTSignature } = require("./netlify/_config");
+const {
+  token,
+  notionToken,
+  notionContestDb,
+  JWTSignature,
+} = require("./netlify/_config");
 const notion = new Client({ auth: notionToken });
 const getContestData = async () => {
   try {
@@ -78,7 +83,28 @@ const getContestData = async () => {
 // const repoName = findingsRepo.split("https://github.com/code-423n4/")[1];
 const localCallContest = `http://localhost:8888/api/v0/constestStatus?repo_name=`;
 const localCallJudges = `http://localhost:8888/api/v0/getJudges?repo_name=`;
-const jwt_token = jwt.sign({data: {callApi:true}},JWTSignature);
+const localUntouchedIssues = `http://localhost:8888/api/v0/getAllUntouchedIssues?repo_name=`;
+const jwt_token = jwt.sign({ data: { callApi: true } }, JWTSignature);
+
+async function fetchUntouchedIssues(repoName) {
+  const res = await fetch(`${localUntouchedIssues}${repoName}&role=judges`, {
+    method: "POST",
+    body: JSON.stringify({ token: jwt_token }),
+  });
+  let response;
+  if (res.ok) {
+    response = await res.json();
+  } else {
+    response = {
+      overviewGrid: {
+        total: { H: 0, M: 0, QA: 0, Gas: 0 },
+        dupesID: { H: 0, M: 0, QA: 0, Gas: 0 },
+      },
+    };
+  }
+  console.log(response);
+  return response;
+}
 
 async function fetchContestOverviewData(repoName) {
   const res = await fetch(`${localCallContest}${repoName}`, {
@@ -292,14 +318,16 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
       if (
         status.length > 0 &&
         (status[0].status === "Active" ||
-        status[0].status === "Judging" ||
-        status[0].status === "Needs Judging")
+          status[0].status === "Judging" ||
+          status[0].status === "Needs Judging")
       ) {
         const repoName = node.findingsRepo.split(
           "https://github.com/code-423n4/"
         )[1];
         const responseOverview = await fetchContestOverviewData(repoName);
         const responseJudges = await fetchJudges(repoName);
+        const responseUntouched = await fetchUntouchedIssues(repoName);
+        console.log("🎉🎉🎉🎉🎉🎉", repoName, responseUntouched);
         createNodeField({
           node,
           name: `judges`,
@@ -313,7 +341,13 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
         createNodeField({
           node,
           name: `totalIssues`,
-          value: (responseOverview.totalIssues - 1),
+          value: responseOverview.totalIssues - 1,
+        });
+        createNodeField({
+          node,
+          name: `totalNeedJudging`,
+          value:
+            responseUntouched.length > 1 ? responseUntouched.length - 1 : 0,
         });
       }
     }

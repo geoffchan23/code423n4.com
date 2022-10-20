@@ -60,7 +60,7 @@ const ContestLayout = (props) => {
     contestid,
   } = props.data.contestsCsv;
   // !!Live judging
-  const { contestOverview, judges, status, totalIssues } = fields;
+  const { contestOverview, judges, status, totalIssues, totalNeedJudging } = fields;
   const { markdownRemark } = props.data;
 
   const t = getDates(start_time, end_time);
@@ -311,6 +311,10 @@ const ContestLayout = (props) => {
                       <p>{totalIssues}</p>
                     </div>
                     <div>
+                      <h2>Pending judgment:</h2>
+                      <p>{totalNeedJudging}</p>
+                    </div>
+                    <div>
                       <h2>Judges:</h2>
                       <ul>
                         {judges && judges.length > 0
@@ -360,6 +364,7 @@ export const query = graphql`
         judges
         status
         totalIssues
+        totalNeedJudging
         contestOverview {
           total {
             H
