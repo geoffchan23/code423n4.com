@@ -5,6 +5,7 @@ import fetch from "node-fetch";
 import path from "path";
 import webpack from "webpack";
 import SchemaCustomization from "./schema";
+import jwt from "jsonwebtoken";
 // Notion
 import { Client } from "@notionhq/client";
 const { token, notionToken, notionContestDb, JWTSignature } = require("./netlify/_config");
@@ -77,11 +78,12 @@ const getContestData = async () => {
 // const repoName = findingsRepo.split("https://github.com/code-423n4/")[1];
 const localCallContest = `http://localhost:8888/api/v0/constestStatus?repo_name=`;
 const localCallJudges = `http://localhost:8888/api/v0/getJudges?repo_name=`;
+const jwt_token = jwt.sign({data: {callApi:true}},JWTSignature);
 
 async function fetchContestOverviewData(repoName) {
   const res = await fetch(`${localCallContest}${repoName}`, {
     method: "POST",
-    // body: JSON.stringify({ token: token }),
+    body: JSON.stringify({ token: jwt_token }),
   });
   let response;
   if (res.ok) {
@@ -100,7 +102,7 @@ async function fetchContestOverviewData(repoName) {
 async function fetchJudges(repoName) {
   const res = await fetch(`${localCallJudges}${repoName}`, {
     method: "POST",
-    // body: JSON.stringify({ token: token }),
+    body: JSON.stringify({ token: jwt_token }),
   });
   let response;
   if (res.ok) {
