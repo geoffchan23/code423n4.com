@@ -95,14 +95,8 @@ async function fetchUntouchedIssues(repoName) {
   if (res.ok) {
     response = await res.json();
   } else {
-    response = {
-      overviewGrid: {
-        total: { H: 0, M: 0, QA: 0, Gas: 0 },
-        dupesID: { H: 0, M: 0, QA: 0, Gas: 0 },
-      },
-    };
+    response = 0;
   }
-  console.log(response);
   return response;
 }
 
@@ -327,7 +321,6 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
         const responseOverview = await fetchContestOverviewData(repoName);
         const responseJudges = await fetchJudges(repoName);
         const responseUntouched = await fetchUntouchedIssues(repoName);
-        console.log("🎉🎉🎉🎉🎉🎉", repoName, responseUntouched);
         createNodeField({
           node,
           name: `judges`,
@@ -347,7 +340,7 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
           node,
           name: `totalNeedJudging`,
           value:
-            responseUntouched.length > 1 ? responseUntouched.length - 1 : 0,
+            responseUntouched.issues.length > 1 ? responseUntouched.issues.length - 1 : 0,
         });
       }
     }

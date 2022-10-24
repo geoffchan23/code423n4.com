@@ -60,7 +60,16 @@ const ContestLayout = (props) => {
     contestid,
   } = props.data.contestsCsv;
   // !!Live judging
-  const { contestOverview, judges, status, totalIssues, totalNeedJudging } = fields;
+  const {
+    contestOverview,
+    judges,
+    status,
+    totalIssues,
+    totalNeedJudging,
+    artPath,
+    submissionPath,
+    readmeContent,
+  } = fields;
   const { markdownRemark } = props.data;
 
   const t = getDates(start_time, end_time);
@@ -116,7 +125,7 @@ const ContestLayout = (props) => {
     <DefaultLayout
       pageTitle={pageTitle}
       bodyClass="contest-page"
-      preview={fields.artPath}
+      preview={artPath}
       pageDescription={dateDescription}
     >
       <ClientOnly>
@@ -135,9 +144,9 @@ const ContestLayout = (props) => {
             )}
             <p className="days-duration">{t.daysDuration} day contest</p>
           </div>
-          {fields.artPath !== null ? (
+          {artPath !== null ? (
             <img
-              src={fields.artPath}
+              src={artPath}
               onClick={() => setArtOpen((isOpen) => !isOpen)}
               className={clsx(
                 { open: artOpen },
@@ -185,9 +194,9 @@ const ContestLayout = (props) => {
 
               {t.contestStatus === "active" &&
               findingsRepo &&
-              fields.submissionPath ? (
+              submissionPath ? (
                 <Link
-                  to={fields.submissionPath}
+                  to={submissionPath}
                   className="button cta-button button-medium secondary"
                 >
                   Submit Finding
@@ -253,7 +262,7 @@ const ContestLayout = (props) => {
                       remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]}
                       rehypePlugins={[rehypeKatex]}
                     >
-                      {`${fields.readmeContent}`}
+                      {`${readmeContent}`}
                     </ReactMarkdown>
                   </article>
                 )}
@@ -272,7 +281,7 @@ const ContestLayout = (props) => {
                       <FindingsList
                         key={currentUser.username}
                         findings={findingsList.user}
-                        submissionPath={fields.submissionPath}
+                        submissionPath={submissionPath}
                         isLoading={findingsStatus === FindingsStatus.Fetching}
                       >
                         <WardenDetails
@@ -284,7 +293,7 @@ const ContestLayout = (props) => {
                         <FindingsList
                           key={team.username}
                           findings={findingsList.teams[team.username] || []}
-                          submissionPath={fields.submissionPath}
+                          submissionPath={submissionPath}
                           isLoading={findingsStatus === FindingsStatus.Fetching}
                         >
                           <WardenDetails
@@ -322,7 +331,6 @@ const ContestLayout = (props) => {
                               <li key={index}>{judge}</li>
                             ))
                           : ""}
-
                       </ul>
                     </div>
                     <div>
