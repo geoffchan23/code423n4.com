@@ -84,7 +84,37 @@ const getContestData = async () => {
 const localCallContest = `http://localhost:8888/api/v0/constestStatus?repo_name=`;
 const localCallJudges = `http://localhost:8888/api/v0/getJudges?repo_name=`;
 const localUntouchedIssues = `http://localhost:8888/api/v0/getAllUntouchedIssues?repo_name=`;
+const localAwardCalc = `http://localhost:8888/api/v0/simpleAwardCalc`;
 const jwt_token = jwt.sign({ data: { callApi: true } }, JWTSignature);
+
+async function fetchAwardCalc(contestId, sponsorName, url) {
+  console.log("calling with the following params :", contestId, sponsorName, url)
+  const res = await fetch(`${localAwardCalc}`, {
+    method: "POST",
+    body: JSON.stringify({
+      token: jwt_token,
+      contestId,
+      sponsorName,
+      url,
+      awardInfo: {
+        mainPool: 0,
+        gasPool: 0,
+        qaPool: 0,
+        awardCoin: "USDC",
+        awardCoinInUSD: 1,
+      },
+    }),
+  });
+
+  let response;
+  if (res.ok) {
+    response = await res.json();
+    console.log(response)
+  } else {
+    response = 0;
+  }
+  return response;
+}
 
 async function fetchUntouchedIssues(repoName) {
   const res = await fetch(`${localUntouchedIssues}${repoName}&role=judges`, {
@@ -313,6 +343,7 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
         status.length > 0 &&
         (status[0].status === "Active" ||
           status[0].status === "Judging" ||
+          status[0].status === "Sponsor Review" ||
           status[0].status === "Needs Judging")
       ) {
         const repoName = node.findingsRepo.split(
@@ -321,6 +352,9 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
         const responseOverview = await fetchContestOverviewData(repoName);
         const responseJudges = await fetchJudges(repoName);
         const responseUntouched = await fetchUntouchedIssues(repoName);
+        // const reportState = await fetchCanRunReportId(repoName);
+        const simpleAwardCalc = await fetchAwardCalc(node.contestid, node.sponsor, node.findingsRepo);
+        console.log(simpleAwardCalc, "-------", repoName);
         createNodeField({
           node,
           name: `judges`,
@@ -340,7 +374,9 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
           node,
           name: `totalNeedJudging`,
           value:
-            responseUntouched.issues.length > 1 ? responseUntouched.issues.length - 1 : 0,
+            responseUntouched.issues.length > 1
+              ? responseUntouched.issues.length - 1
+              : 0,
         });
       }
     }

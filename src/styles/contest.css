@@ -48,7 +48,7 @@
   margin: 0 auto;
   cursor: pointer;
   position: relative;
-  background-size:cover!important; 
+  background-size:cover!important;
 }
 
 .contest-artwork-default{
@@ -265,6 +265,36 @@
 - It's not zoom, and it's not an initial device scale issue
 - All other media queries are fine
 - Nothing to do with the cascade */
+
+.contest-judges {
+  display: flex;
+  flex-direction: column;
+}
+.contest-judges h2 {
+  margin: 0;
+  padding: 0;
+}
+
+.contest-judges ul {
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 50%;
+}
+.contest-summary {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+}
+
+.contest-summary-details {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
 
 @media only screen and (max-width: 965px) {
   .contest-page .contest-tippy-top {

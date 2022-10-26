@@ -83,7 +83,7 @@ const ContestLayout = (props) => {
       ? markdownRemark.frontmatter.altUrl
       : `/reports/${props.data.markdownRemark.frontmatter.slug}`;
   }
-
+  console.log(status)
   useEffect(() => {
     (async () => {
       if (currentUser.isLoggedIn) {
@@ -120,7 +120,12 @@ const ContestLayout = (props) => {
       }
     })();
   }, [currentUser, contestid]);
-  console.log(props.data.contestsCsv);
+
+  //TODO
+  // Add indicator for the real status: judging
+  // Sponsor review
+  // needs judging 
+
   return (
     <DefaultLayout
       pageTitle={pageTitle}
@@ -229,6 +234,7 @@ const ContestLayout = (props) => {
               {(t.contestStatus === "active" ||
                 status === "Active" ||
                 status === "Judging" ||
+                status === "Sponsor Review" ||
                 status === "Needs judging") && <Tab>Live judging</Tab>}
             </TabList>
 
@@ -313,17 +319,10 @@ const ContestLayout = (props) => {
                 {(t.contestStatus === "active" ||
                   status === "Active" ||
                   status === "Judging" ||
+                  status === "Sponsor Review" ||
                   status === "Needs judging") && (
                   <div>
-                    <div>
-                      <h2>Total issues:</h2>
-                      <p>{totalIssues}</p>
-                    </div>
-                    <div>
-                      <h2>Pending judgment:</h2>
-                      <p>{totalNeedJudging}</p>
-                    </div>
-                    <div>
+                    <div className="contest-judges">
                       <h2>Judges:</h2>
                       <ul>
                         {judges && judges.length > 0
@@ -332,6 +331,13 @@ const ContestLayout = (props) => {
                             ))
                           : ""}
                       </ul>
+                    </div>
+                    <div className="contest-summary">
+                      <h2>Contest summary</h2>
+                      <div className="contest-summary-details">
+                          <p>Total issues: {totalIssues}</p>
+                          <p>Pending judgment: {totalNeedJudging}</p>
+                      </div>
                     </div>
                     <div>
                       <OverviewTable overviewData={contestOverview} />
