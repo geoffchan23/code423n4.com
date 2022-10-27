@@ -69,8 +69,10 @@ const ContestLayout = (props) => {
     artPath,
     submissionPath,
     readmeContent,
+    awards
   } = fields;
   const { markdownRemark } = props.data;
+  console.log(awards);
 
   const t = getDates(start_time, end_time);
   const dateDescription = `${amount}\n${t.startDay}—${t.endDay}`;
@@ -121,10 +123,10 @@ const ContestLayout = (props) => {
     })();
   }, [currentUser, contestid]);
 
-  //TODO
+  // TODO
   // Add indicator for the real status: judging
   // Sponsor review
-  // needs judging 
+  // needs judging
 
   return (
     <DefaultLayout
@@ -379,6 +381,18 @@ export const query = graphql`
         status
         totalIssues
         totalNeedJudging
+        awards {
+          award
+          awardCoin
+          awardUSD
+          contest
+          finding
+          handle
+          pie
+          risk
+          split
+          slice
+        }
         contestOverview {
           total {
             H
