@@ -112,7 +112,7 @@ async function fetchAwardCalc(contestId, sponsorName, url) {
 }
 
 async function fetchUntouchedIssues(repoName) {
-  const res = await fetch(`${baseLocalUrl}getAllUntouchedIssues?repo_name=${repoName}&role=judges`, {
+  const res = await fetch(`${baseLocalUrl}getAllUntouchedIssues?repo_name=${repoName}&role=main`, {
     method: "POST",
     body: JSON.stringify({ token: jwt_token }),
   });
@@ -348,7 +348,7 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
         const responseJudges = await fetchJudges(repoName);
         const responseUntouched = await fetchUntouchedIssues(repoName);
         const simpleAwardCalc = await fetchAwardCalc(node.contestid, node.sponsor, node.findingsRepo);
-        console.table(simpleAwardCalc.awards);
+        console.log(responseUntouched);
         console.log("-------", repoName)
         createNodeField({
           node,
@@ -373,10 +373,7 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
         createNodeField({
           node,
           name: `totalNeedJudging`,
-          value:
-            responseUntouched.issues.length > 1
-              ? responseUntouched.issues.length - 1
-              : 0,
+          value: responseUntouched.issues - 1,
         });
       }
     }
