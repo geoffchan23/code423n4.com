@@ -72,7 +72,9 @@ const ContestLayout = (props) => {
     awards
   } = fields;
   const { markdownRemark } = props.data;
-  console.log(awards);
+  console.log("awards", awards);
+  console.log("judges",judges)
+  console.log("status",status)
 
   const t = getDates(start_time, end_time);
   const dateDescription = `${amount}\n${t.startDay}—${t.endDay}`;
@@ -85,7 +87,6 @@ const ContestLayout = (props) => {
       ? markdownRemark.frontmatter.altUrl
       : `/reports/${props.data.markdownRemark.frontmatter.slug}`;
   }
-  console.log(status)
   useEffect(() => {
     (async () => {
       if (currentUser.isLoggedIn) {
@@ -331,7 +332,7 @@ const ContestLayout = (props) => {
                           ? judges.map((judge, index) => (
                               <li key={index}>{judge}</li>
                             ))
-                          : ""}
+                          : <p>No judges</p>}
                       </ul>
                     </div>
                     <div className="contest-summary">

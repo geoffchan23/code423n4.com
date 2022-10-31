@@ -81,14 +81,11 @@ const getContestData = async () => {
 
 //!! live judging
 // const repoName = findingsRepo.split("https://github.com/code-423n4/")[1];
-const localCallContest = `http://localhost:8888/api/v0/constestStatus?repo_name=`;
-const localCallJudges = `http://localhost:8888/api/v0/getJudges?repo_name=`;
-const localUntouchedIssues = `http://localhost:8888/api/v0/getAllUntouchedIssues?repo_name=`;
-const localAwardCalc = `http://localhost:8888/api/v0/awardCalc`;
+const baseLocalUrl = `http://localhost:8888/api/v0/`;
 const jwt_token = jwt.sign({ data: { callApi: true } }, JWTSignature);
 
 async function fetchAwardCalc(contestId, sponsorName, url) {
-  const res = await fetch(`${localAwardCalc}`, {
+  const res = await fetch(`${baseLocalUrl}awardCalc`, {
     method: "POST",
     body: JSON.stringify({
       token: jwt_token,
@@ -115,7 +112,7 @@ async function fetchAwardCalc(contestId, sponsorName, url) {
 }
 
 async function fetchUntouchedIssues(repoName) {
-  const res = await fetch(`${localUntouchedIssues}${repoName}&role=judges`, {
+  const res = await fetch(`${baseLocalUrl}getAllUntouchedIssues?repo_name=${repoName}&role=judges`, {
     method: "POST",
     body: JSON.stringify({ token: jwt_token }),
   });
@@ -129,7 +126,7 @@ async function fetchUntouchedIssues(repoName) {
 }
 
 async function fetchContestOverviewData(repoName) {
-  const res = await fetch(`${localCallContest}${repoName}`, {
+  const res = await fetch(`${baseLocalUrl}constestStatus?repo_name=${repoName}`, {
     method: "POST",
     body: JSON.stringify({ token: jwt_token }),
   });
@@ -148,7 +145,7 @@ async function fetchContestOverviewData(repoName) {
 }
 
 async function fetchJudges(repoName) {
-  const res = await fetch(`${localCallJudges}${repoName}`, {
+  const res = await fetch(`${baseLocalUrl}getJudges?repo_name=${repoName}`, {
     method: "POST",
     body: JSON.stringify({ token: jwt_token }),
   });
@@ -350,9 +347,7 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
         const responseOverview = await fetchContestOverviewData(repoName);
         const responseJudges = await fetchJudges(repoName);
         const responseUntouched = await fetchUntouchedIssues(repoName);
-        // const reportState = await fetchCanRunReportId(repoName);
         const simpleAwardCalc = await fetchAwardCalc(node.contestid, node.sponsor, node.findingsRepo);
-        // console.log(simpleAwardCalc, "-------", repoName);
         console.table(simpleAwardCalc.awards);
         console.log("-------", repoName)
         createNodeField({

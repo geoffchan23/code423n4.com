@@ -12,6 +12,7 @@ type Award {
   awardCoin: String
   awardUSD: Float
 }
+
 type TotalData {
   H: Int
   M: Int

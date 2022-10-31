@@ -134,7 +134,7 @@ const Leaderboard = ({ data }) => {
     { value: "Last 90 days", label: "Last 90 days" },
     { value: "All time", label: "All time" },
   ];
-
+  console.log(resultData);
   return (
     <DefaultLayout pageTitle="Leaderboard" bodyClass="leaderboard">
       <div className="wrapper-main">
