@@ -69,12 +69,23 @@ const ContestLayout = (props) => {
     artPath,
     submissionPath,
     readmeContent,
-    awards
+    awards,
   } = fields;
   const { markdownRemark } = props.data;
   console.log("awards", awards);
-  console.log("judges",judges)
-  console.log("status",status)
+  console.log("judges", judges);
+  console.log("status", status);
+  const wardenCount = () => {
+    let count = [];
+    awards.forEach((warden: any) => {
+      //@ts-ignore
+      if (!count.includes(warden.handle)) {
+        //@ts-ignore
+        count.push(warden.handle)
+      }
+    })
+    return count.length;
+  }
 
   const t = getDates(start_time, end_time);
   const dateDescription = `${amount}\n${t.startDay}—${t.endDay}`;
@@ -228,18 +239,52 @@ const ContestLayout = (props) => {
         <section>
           <Tabs className="contest-tabs">
             <TabList>
-              {props.data.leaderboardFindings.findings.length > 0 && (
-                <Tab>Results</Tab>
-              )}
-              <Tab>Details</Tab>
-              {t.contestStatus === "active" && <Tab>Findings</Tab>}
               {/* //  !! LIVE JUDGING */}
               {(t.contestStatus === "active" ||
                 status === "Active" ||
                 status === "Judging" ||
                 status === "Sponsor Review" ||
                 status === "Needs judging") && <Tab>Live judging</Tab>}
+              {props.data.leaderboardFindings.findings.length > 0 && (
+                <Tab>Results</Tab>
+              )}
+              <Tab>Details</Tab>
+              {t.contestStatus === "active" && <Tab>Findings</Tab>}
             </TabList>
+            {(t.contestStatus === "active" ||
+              status === "Active" ||
+              status === "Judging" ||
+              status === "Sponsor Review" ||
+              status === "Needs judging") && (
+              <TabPanel>
+                <div className="contest-wrapper">
+                  <div>
+                    <div className="contest-judges">
+                      <h2>Judges:</h2>
+                      <ul>
+                        {judges && judges.length > 0 ? (
+                          judges.map((judge, index) => (
+                            <li key={index}>{judge}</li>
+                          ))
+                        ) : (
+                          <p>No judges</p>
+                        )}
+                      </ul>
+                    </div>
+                    <div className="contest-summary">
+                      <h2>Contest summary</h2>
+                      <div className="contest-summary-details">
+                        <p>Total issues: {totalIssues}</p>
+                        <p>Pending judgment: {totalNeedJudging}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <OverviewTable overviewData={contestOverview} />
+                    </div>
+                  </div>
+                </div>
+              </TabPanel>
+            )}
 
             {props.data.leaderboardFindings.findings.length > 0 && (
               <TabPanel>
@@ -248,6 +293,7 @@ const ContestLayout = (props) => {
                 </div>
               </TabPanel>
             )}
+
             <TabPanel>
               <div className="contest-wrapper">
                 {t.contestStatus === "soon" ? (
@@ -316,39 +362,6 @@ const ContestLayout = (props) => {
                 </div>
               </TabPanel>
             )}
-
-            <TabPanel>
-              <div className="contest-wrapper">
-                {(t.contestStatus === "active" ||
-                  status === "Active" ||
-                  status === "Judging" ||
-                  status === "Sponsor Review" ||
-                  status === "Needs judging") && (
-                  <div>
-                    <div className="contest-judges">
-                      <h2>Judges:</h2>
-                      <ul>
-                        {judges && judges.length > 0
-                          ? judges.map((judge, index) => (
-                              <li key={index}>{judge}</li>
-                            ))
-                          : <p>No judges</p>}
-                      </ul>
-                    </div>
-                    <div className="contest-summary">
-                      <h2>Contest summary</h2>
-                      <div className="contest-summary-details">
-                          <p>Total issues: {totalIssues}</p>
-                          <p>Pending judgment: {totalNeedJudging}</p>
-                      </div>
-                    </div>
-                    <div>
-                      <OverviewTable overviewData={contestOverview} />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </TabPanel>
           </Tabs>
         </section>
       </ClientOnly>
