@@ -84,6 +84,23 @@ const getContestData = async () => {
 const baseLocalUrl = `http://localhost:8888/api/v0/`;
 const jwt_token = jwt.sign({ data: { callApi: true } }, JWTSignature);
 
+async function fetchLeaderBoardInformation() {
+  const res = await fetch(`${baseLocalUrl}getAwards`, {
+    method: "POST",
+    body: JSON.stringify({
+      token: jwt_token,
+    }),
+  });
+
+  let response;
+  if (res.ok) {
+    response = await res.json();
+  } else {
+    response = [];
+  }
+  return response;
+}
+
 async function fetchAwardCalc(contestId, sponsorName, url) {
   const res = await fetch(`${baseLocalUrl}awardCalc`, {
     method: "POST",
@@ -112,10 +129,13 @@ async function fetchAwardCalc(contestId, sponsorName, url) {
 }
 
 async function fetchUntouchedIssues(repoName) {
-  const res = await fetch(`${baseLocalUrl}getAllUntouchedIssues?repo_name=${repoName}&role=main`, {
-    method: "POST",
-    body: JSON.stringify({ token: jwt_token }),
-  });
+  const res = await fetch(
+    `${baseLocalUrl}getAllUntouchedIssues?repo_name=${repoName}&role=main`,
+    {
+      method: "POST",
+      body: JSON.stringify({ token: jwt_token }),
+    }
+  );
   let response;
   if (res.ok) {
     response = await res.json();
@@ -126,10 +146,13 @@ async function fetchUntouchedIssues(repoName) {
 }
 
 async function fetchContestOverviewData(repoName) {
-  const res = await fetch(`${baseLocalUrl}constestStatus?repo_name=${repoName}`, {
-    method: "POST",
-    body: JSON.stringify({ token: jwt_token }),
-  });
+  const res = await fetch(
+    `${baseLocalUrl}constestStatus?repo_name=${repoName}`,
+    {
+      method: "POST",
+      body: JSON.stringify({ token: jwt_token }),
+    }
+  );
   let response;
   if (res.ok) {
     response = await res.json();
@@ -321,6 +344,9 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
   const { createNodeField } = actions;
   const nodes = await getNodes();
   const result = await getContestData();
+  const responseTest = await fetchLeaderBoardInformation();
+  console.log(responseTest);
+
   nodes.forEach(async (node, index) => {
     if (node.internal.type === `ContestsCsv`) {
       const status = result.filter(
@@ -347,9 +373,13 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
         const responseOverview = await fetchContestOverviewData(repoName);
         const responseJudges = await fetchJudges(repoName);
         const responseUntouched = await fetchUntouchedIssues(repoName);
-        const simpleAwardCalc = await fetchAwardCalc(node.contestid, node.sponsor, node.findingsRepo);
-        console.log(responseUntouched);
-        console.log("-------", repoName)
+        const simpleAwardCalc = await fetchAwardCalc(
+          node.contestid,
+          node.sponsor,
+          node.findingsRepo
+        );
+
+        // console.log("-------", repoName);
         createNodeField({
           node,
           name: `judges`,
