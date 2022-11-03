@@ -82,6 +82,7 @@ const getContestData = async () => {
 //!! live judging
 // const repoName = findingsRepo.split("https://github.com/code-423n4/")[1];
 const baseLocalUrl = `http://localhost:8888/api/v0/`;
+const prodUrl = `https://api.code4rena.com/api/v0/`;
 const jwt_token = jwt.sign({ data: { callApi: true } }, JWTSignature);
 
 async function fetchLeaderBoardInformation() {
@@ -345,7 +346,7 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
   const nodes = await getNodes();
   const result = await getContestData();
   const responseTest = await fetchLeaderBoardInformation();
-  console.log(responseTest);
+  // console.log(responseTest);
 
   nodes.forEach(async (node, index) => {
     if (node.internal.type === `ContestsCsv`) {
@@ -378,8 +379,8 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
           node.sponsor,
           node.findingsRepo
         );
-
-        // console.log("-------", repoName);
+        console.log(simpleAwardCalc.info || 'Oops fetch failed');
+        console.log("-------", repoName);
         createNodeField({
           node,
           name: `judges`,

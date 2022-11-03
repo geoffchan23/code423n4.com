@@ -72,20 +72,22 @@ const ContestLayout = (props) => {
     awards,
   } = fields;
   const { markdownRemark } = props.data;
-  console.log("awards", awards);
-  console.log("judges", judges);
-  console.log("status", status);
+  const handles = props.data.allHandlesJson.nodes;
+  console.log(handles);
+  // console.log("awards", awards);
+  // console.log("judges", judges);
+  // console.log("status", status);
   const wardenCount = () => {
     let count = [];
     awards.forEach((warden: any) => {
       //@ts-ignore
       if (!count.includes(warden.handle)) {
         //@ts-ignore
-        count.push(warden.handle)
+        count.push(warden.handle);
       }
-    })
+    });
     return count.length;
-  }
+  };
 
   const t = getDates(start_time, end_time);
   const dateDescription = `${amount}\n${t.startDay}—${t.endDay}`;
@@ -245,6 +247,7 @@ const ContestLayout = (props) => {
                 status === "Judging" ||
                 status === "Sponsor Review" ||
                 status === "Needs judging") && <Tab>Live judging</Tab>}
+
               {props.data.leaderboardFindings.findings.length > 0 && (
                 <Tab>Results</Tab>
               )}
@@ -258,28 +261,74 @@ const ContestLayout = (props) => {
               status === "Needs judging") && (
               <TabPanel>
                 <div className="contest-wrapper">
-                  <div>
-                    <div className="contest-judges">
-                      <h2>Judges:</h2>
-                      <ul>
-                        {judges && judges.length > 0 ? (
-                          judges.map((judge, index) => (
-                            <li key={index}>{judge}</li>
-                          ))
-                        ) : (
-                          <p>No judges</p>
-                        )}
-                      </ul>
+                  <div className="contest-wrapper-live-judging">
+                    <div className="contest-live-judging-container">
+                      <h2 className="live-judging-title">Judges summary</h2>
                     </div>
-                    <div className="contest-summary">
-                      <h2>Contest summary</h2>
-                      <div className="contest-summary-details">
-                        <p>Total issues: {totalIssues}</p>
-                        <p>Pending judgment: {totalNeedJudging}</p>
+                    <div className="contest-live-judging-container">
+                      <h2 className="live-judging-title">Total price Pool</h2>
+                      <div className="award-container">
+                        <img
+                          style={{
+                            height: "15px",
+                            width: "15px",
+                            color: "white",
+                            marginRight: "10px",
+                          }}
+                          src="/images/icon-details.svg"
+                          alt="icon of a piece of paper with lines on it to indicate text"
+                        />
+                        <p>USDC $500,000</p>
                       </div>
                     </div>
-                    <div>
-                      <OverviewTable overviewData={contestOverview} />
+                    <div className="contest-live-judging-container">
+                      <h2 className="live-judging-title">HM Awards</h2>
+                      <h3>USDC $25,000</h3>
+                      <div className="findings-display">
+                        <p>High Risk Findings</p>
+                        <p className="key-number">{contestOverview.total.H}</p>
+                      </div>
+                      <div className="findings-display">
+                        <p>Medium Risk Findings</p>
+                        <p className="key-number">{contestOverview.total.M}</p>
+                      </div>
+                      <div className="findings-display">
+                        <p>Confirmed Solo Findings</p>
+                        <p className="key-number">
+                          {(contestOverview.total.M +
+                            contestOverview.total.H) -
+                            (contestOverview.dupesID.H +
+                              contestOverview.dupesID.M)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="contest-live-judging-container">
+                      <h2 className="live-judging-title">QA and Gas Awards</h2>
+                      <div className="pool-division-container">
+                        <div className="pool-division">
+                            <p>$ 5,000 USDC</p>
+                          <div className="findings-display">
+                            <p>QA Reports</p>
+                            <p className="key-number">{contestOverview.total.QA}</p>
+                          </div>
+                        </div>
+                        <div className="pool-division">
+                            <p>$ 5,000 USDC</p>
+                          <div className="findings-display">
+                            <p>QA Reports</p>
+                            <p className="key-number">{contestOverview.total.QA}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="contest-live-judging-container">
+                      <h2 className="live-judging-title">Participants</h2>
+                      <div style={{textAlign: 'left', width:'100%'}}>
+                        <p>{wardenCount()} wardens participated including:</p>
+                      </div>
+                      <div>
+
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -467,6 +516,19 @@ export const query = graphql`
               }
             }
             link
+          }
+        }
+      }
+    }
+    allHandlesJson {
+      nodes {
+        link
+        handle
+        image {
+          childImageSharp {
+            resize(width: 40) {
+              src
+            }
           }
         }
       }
