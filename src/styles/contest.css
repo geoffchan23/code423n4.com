@@ -297,7 +297,6 @@
 }
 
 .contest-wrapper-live-judging {
-  border: 2px solid white;
   padding: 5px;
   display: flex;
   flex-direction: column;
@@ -305,11 +304,14 @@
   justify-content: center;
 }
 .contest-live-judging-container {
-  min-width: 400px;
+  min-width: 350px;
   border-bottom: 2px solid white;
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+.contest-live-judging-container:last-child {
+  border-bottom: none;
 }
 
 .live-judging-title {
@@ -317,7 +319,7 @@
   font-size: 12px !important;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 4px;
 }
 
 .award-container {
@@ -332,7 +334,7 @@
   align-items: center;
   width: 100%;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 .findings-display p {
   margin: 0;
@@ -350,16 +352,32 @@
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-column-gap: 10px;
+  grid-column-gap: 0px;
   margin-bottom: 14px;
 }
 
 .pool-division:first-child {
-  border-right: 2px solid white;
+  margin-right: 10px;
+}
+.pool-division:last-child {
+  padding-left: 12px;
+  border-left: 2px solid white;
 }
 .key-number {
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 700;
+}
+.contest-live-judging-wardens {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-column-gap: 12px;
+  grid-row-gap: 12px;
+}
+.contest-live-judging-wardens > div {
+  border: 2px solid white;
+  padding: 10px;
+  border-radius: 6px;
 }
 
 @media only screen and (max-width: 965px) {

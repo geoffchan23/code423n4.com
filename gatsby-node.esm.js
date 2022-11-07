@@ -86,7 +86,7 @@ const prodUrl = `https://api.code4rena.com/api/v0/`;
 const jwt_token = jwt.sign({ data: { callApi: true } }, JWTSignature);
 
 async function fetchLeaderBoardInformation() {
-  const res = await fetch(`${baseLocalUrl}getAwards`, {
+  const res = await fetch(`${prodUrl}getAwards`, {
     method: "POST",
     body: JSON.stringify({
       token: jwt_token,
@@ -103,7 +103,7 @@ async function fetchLeaderBoardInformation() {
 }
 
 async function fetchAwardCalc(contestId, sponsorName, url) {
-  const res = await fetch(`${baseLocalUrl}awardCalc`, {
+  const res = await fetch(`${prodUrl}awardCalc`, {
     method: "POST",
     body: JSON.stringify({
       token: jwt_token,
@@ -379,7 +379,7 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
           node.sponsor,
           node.findingsRepo
         );
-        console.log(simpleAwardCalc.info || 'Oops fetch failed');
+        // console.log(simpleAwardCalc.info || 'Oops fetch failed');
         console.log("-------", repoName);
         createNodeField({
           node,
@@ -406,6 +406,39 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
           name: `totalNeedJudging`,
           value: responseUntouched.issues - 1,
         });
+        if (simpleAwardCalc.info && simpleAwardCalc.info.contestStatsRaw) {
+          const contestJson = JSON.parse(simpleAwardCalc.info.contestStatsRaw)
+          createNodeField({
+            node,
+            name: `contestStats`,
+            value: {
+              _0:{
+                total: contestJson["0"].total,
+                unique: contestJson["0"].unique
+              },
+              _1:{
+                total: contestJson["1"].total,
+                unique: contestJson["1"].unique
+              },
+              _2:{
+                total: contestJson["2"].total,
+                unique: contestJson["2"].unique
+              },
+              _3:{
+                total: contestJson["3"].total,
+                unique: contestJson["3"].unique
+              },
+              q:{
+                total: contestJson.q.total,
+                unique: contestJson.q.unique
+              },
+              g:{
+                total: contestJson.g.total,
+                unique: contestJson.g.unique
+              },
+            },
+          });
+        }
       }
     }
   });

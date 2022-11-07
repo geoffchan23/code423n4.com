@@ -1,5 +1,19 @@
 const ContestsCsvFields = `
 
+type ContestStats {
+  total: Int
+  unique: Int
+}
+
+type ContestStatsRaw {
+  _0: ContestStats
+  _1: ContestStats
+  _2: ContestStats
+  _3: ContestStats
+  g: ContestStats
+  q: ContestStats
+}
+
 type Award {
   contest: Int
   handle: String
@@ -36,6 +50,7 @@ type ContestsCsvFields implements Node @dontInfer {
   totalIssues: Int
   totalNeedJudging: Int
   awards: [Award]
+  contestStats: ContestStatsRaw
 }`;
 
 export default ContestsCsvFields;

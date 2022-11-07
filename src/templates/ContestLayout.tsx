@@ -7,7 +7,7 @@ import rehypeKatex from "rehype-katex";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-
+import LeaderboardHandle from "../components/LeaderboardHandle";
 // types
 import { FindingsResponse } from "../../types/finding";
 // helpers
@@ -22,7 +22,6 @@ import DefaultLayout from "./DefaultLayout";
 import FindingsList from "../components/FindingsList";
 import WardenDetails from "../components/WardenDetails";
 import ReactMarkdown from "react-markdown";
-import OverviewTable from "../components/OverviewTable/OverviewTable";
 // styles
 import * as styles from "../components/reporter/widgets/Widgets.module.scss";
 
@@ -70,13 +69,12 @@ const ContestLayout = (props) => {
     submissionPath,
     readmeContent,
     awards,
+    contestStats
   } = fields;
   const { markdownRemark } = props.data;
   const handles = props.data.allHandlesJson.nodes;
-  console.log(handles);
-  // console.log("awards", awards);
-  // console.log("judges", judges);
-  // console.log("status", status);
+  console.log(contestStats);
+
   const wardenCount = () => {
     let count = [];
     awards.forEach((warden: any) => {
@@ -136,12 +134,7 @@ const ContestLayout = (props) => {
       }
     })();
   }, [currentUser, contestid]);
-
-  // TODO
-  // Add indicator for the real status: judging
-  // Sponsor review
-  // needs judging
-
+  console.log(status)
   return (
     <DefaultLayout
       pageTitle={pageTitle}
@@ -246,7 +239,7 @@ const ContestLayout = (props) => {
                 status === "Active" ||
                 status === "Judging" ||
                 status === "Sponsor Review" ||
-                status === "Needs judging") && <Tab>Live judging</Tab>}
+                status === "Needs Judging") && <Tab>Live judging</Tab>}
 
               {props.data.leaderboardFindings.findings.length > 0 && (
                 <Tab>Results</Tab>
@@ -258,12 +251,12 @@ const ContestLayout = (props) => {
               status === "Active" ||
               status === "Judging" ||
               status === "Sponsor Review" ||
-              status === "Needs judging") && (
+              status === "Needs Judging") && (
               <TabPanel>
                 <div className="contest-wrapper">
                   <div className="contest-wrapper-live-judging">
                     <div className="contest-live-judging-container">
-                      <h2 className="live-judging-title">Judges summary</h2>
+                      <h2 className="live-judging-title">Judging</h2>
                     </div>
                     <div className="contest-live-judging-container">
                       <h2 className="live-judging-title">Total price Pool</h2>
@@ -278,12 +271,12 @@ const ContestLayout = (props) => {
                           src="/images/icon-details.svg"
                           alt="icon of a piece of paper with lines on it to indicate text"
                         />
-                        <p>USDC $500,000</p>
+                        <p className="key-number">USDC $500,000</p>
                       </div>
                     </div>
                     <div className="contest-live-judging-container">
                       <h2 className="live-judging-title">HM Awards</h2>
-                      <h3>USDC $25,000</h3>
+                      <p className="key-number">USDC $25,000</p>
                       <div className="findings-display">
                         <p>High Risk Findings</p>
                         <p className="key-number">{contestOverview.total.H}</p>
@@ -315,8 +308,8 @@ const ContestLayout = (props) => {
                         <div className="pool-division">
                             <p>$ 5,000 USDC</p>
                           <div className="findings-display">
-                            <p>QA Reports</p>
-                            <p className="key-number">{contestOverview.total.QA}</p>
+                            <p>Gas Reports</p>
+                            <p className="key-number">{contestOverview.total.Gas}</p>
                           </div>
                         </div>
                       </div>
@@ -326,8 +319,11 @@ const ContestLayout = (props) => {
                       <div style={{textAlign: 'left', width:'100%'}}>
                         <p>{wardenCount()} wardens participated including:</p>
                       </div>
-                      <div>
-
+                      <div className="contest-live-judging-wardens">
+                        <LeaderboardHandle handle={handles[30].handle} image={handles[30].image} link={handles[30].link} members={null}  />
+                        <LeaderboardHandle handle={handles[30].handle} image={handles[30].image} link={handles[30].link} members={null}  />
+                        <LeaderboardHandle handle={handles[30].handle} image={handles[30].image} link={handles[30].link} members={null}  />
+                        <LeaderboardHandle handle={handles[30].handle} image={handles[30].image} link={handles[30].link} members={null}  />
                       </div>
                     </div>
                   </div>
@@ -468,6 +464,32 @@ export const query = graphql`
             M
             QA
             Gas
+          }
+        }
+        contestStats {
+          _0 {
+            total
+            unique
+          }
+          _2 {
+            total
+            unique
+          }
+          _1 {
+            total
+            unique
+          }
+          _3 {
+            total
+            unique
+          }
+          g {
+            total
+            unique
+          }
+          q {
+            total
+            unique
           }
         }
       }
