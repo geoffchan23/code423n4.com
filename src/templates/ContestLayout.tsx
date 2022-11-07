@@ -42,6 +42,7 @@ const ContestLayout = (props) => {
     FindingsStatus.Fetching
   );
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [uniqueFindings, setUniqueFindings] = useState<number>(0);
 
   // hooks
   const { currentUser } = useUser();
@@ -74,8 +75,27 @@ const ContestLayout = (props) => {
   const { markdownRemark } = props.data;
   const handles = props.data.allHandlesJson.nodes;
   console.log(contestStats);
+  const firstTenWardens = () => {
+    
+  }
+  useEffect(() => {
+    if (contestStats) {
+      let count = 0;
+      for (const [key, value] of Object.entries(contestStats)) {
+        for (const [a, b] of Object.entries(contestStats[key])) {
+          if (a === "unique") {
+            count += b;
+          }
+        }
+      }
+      setUniqueFindings(count);
+    }
+  }, [])
 
   const wardenCount = () => {
+    if (!awards) {
+      return 0;
+    }
     let count = [];
     awards.forEach((warden: any) => {
       //@ts-ignore
@@ -288,10 +308,7 @@ const ContestLayout = (props) => {
                       <div className="findings-display">
                         <p>Confirmed Solo Findings</p>
                         <p className="key-number">
-                          {(contestOverview.total.M +
-                            contestOverview.total.H) -
-                            (contestOverview.dupesID.H +
-                              contestOverview.dupesID.M)}
+                          {contestStats ? uniqueFindings : ''}
                         </p>
                       </div>
                     </div>

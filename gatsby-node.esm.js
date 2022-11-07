@@ -168,25 +168,25 @@ async function fetchContestOverviewData(repoName) {
   return response;
 }
 
-async function fetchJudges(repoName) {
-  const res = await fetch(`${baseLocalUrl}getJudges?repo_name=${repoName}`, {
-    method: "POST",
-    body: JSON.stringify({ token: jwt_token }),
-  });
-  let response;
-  if (res.ok) {
-    response = await res.json();
-  } else {
-    response = { judges: [] };
-  }
-  return response;
-}
+// async function fetchJudges(repoName) {
+//   const res = await fetch(`${baseLocalUrl}getJudges?repo_name=${repoName}`, {
+//     method: "POST",
+//     body: JSON.stringify({ token: jwt_token }),
+//   });
+//   let response;
+//   if (res.ok) {
+//     response = await res.json();
+//   } else {
+//     response = { judges: [] };
+//   }
+//   return response;
+// }
 
-const graphqlWithAuth = graphql.defaults({
-  headers: {
-    authorization: `Bearer ${token}`,
-  },
-});
+// const graphqlWithAuth = graphql.defaults({
+//   headers: {
+//     authorization: `Bearer ${token}`,
+//   },
+// });
 
 function slugify(text) {
   return text
@@ -372,20 +372,23 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
           "https://github.com/code-423n4/"
         )[1];
         const responseOverview = await fetchContestOverviewData(repoName);
-        const responseJudges = await fetchJudges(repoName);
+        // const responseJudges = await fetchJudges(repoName);
         const responseUntouched = await fetchUntouchedIssues(repoName);
+        //!! not correct, doesn't consider the closed // unsatisfactory ones
         const simpleAwardCalc = await fetchAwardCalc(
           node.contestid,
           node.sponsor,
           node.findingsRepo
         );
-        // console.log(simpleAwardCalc.info || 'Oops fetch failed');
+        console.log("------====------")
+        console.log(responseOverview.overviewGrid)
+        console.log(simpleAwardCalc.info || 'Oops fetch failed');
         console.log("-------", repoName);
-        createNodeField({
-          node,
-          name: `judges`,
-          value: responseJudges.judges,
-        });
+        // createNodeField({
+        //   node,
+        //   name: `judges`,
+        //   value: responseJudges.judges,
+        // });
         createNodeField({
           node,
           name: `contestOverview`,
@@ -407,7 +410,8 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
           value: responseUntouched.issues - 1,
         });
         if (simpleAwardCalc.info && simpleAwardCalc.info.contestStatsRaw) {
-          const contestJson = JSON.parse(simpleAwardCalc.info.contestStatsRaw)
+          const contestJson = JSON.parse(simpleAwardCalc.info.contestStatsRaw);
+          console.log("ok ----", repoName)
           createNodeField({
             node,
             name: `contestStats`,
