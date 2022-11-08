@@ -73,16 +73,19 @@ const ContestLayout = (props) => {
   const { markdownRemark } = props.data;
   const handles = props.data.allHandlesJson.nodes;
   // match handle && topWardens
-  const displayTopWardens = handles.map(el => {
-    if (!topWardens) {
-      return;
-    }
-    const match = topWardens.filter(warden => warden.handle === el.handle)
-    if (match.length > 0) {
-      return el;
-    }
-  }).filter(el => el!== undefined).slice(0,10);
-  console.log(displayTopWardens)
+  const displayTopWardens = handles
+    .map((el) => {
+      if (!topWardens) {
+        return;
+      }
+      const match = topWardens.filter((warden) => warden.handle === el.handle);
+      if (match.length > 0) {
+        return el;
+      }
+    })
+    .filter((el) => el !== undefined)
+    .slice(0, 10);
+  console.log(displayTopWardens);
 
   const t = getDates(start_time, end_time);
   const dateDescription = `${amount}\n${t.startDay}—${t.endDay}`;
@@ -248,7 +251,7 @@ const ContestLayout = (props) => {
               status === "Active" ||
               status === "Judging" ||
               status === "Sponsor Review" ||
-              status === "Needs Judging") && (
+              status === "Needs Judging") && contestOverview && (
               <TabPanel>
                 <div className="contest-wrapper">
                   <div className="contest-wrapper-live-judging">
@@ -260,12 +263,12 @@ const ContestLayout = (props) => {
                       <div className="award-container">
                         <img
                           style={{
-                            height: "15px",
-                            width: "15px",
+                            height: "25px",
+                            width: "25px",
                             color: "white",
                             marginRight: "10px",
                           }}
-                          src="/images/icon-details.svg"
+                          src="/images/award-icon.svg"
                           alt="icon of a piece of paper with lines on it to indicate text"
                         />
                         <p className="key-number">USDC $500,000</p>
@@ -273,7 +276,7 @@ const ContestLayout = (props) => {
                     </div>
                     <div className="contest-live-judging-container">
                       <h2 className="live-judging-title">HM Awards</h2>
-                      <p className="key-number">USDC $25,000</p>
+                      <p className="key-number">USDC $450,000</p>
                       <div className="findings-display">
                         <p>High Risk Findings</p>
                         <p className="key-number">{contestOverview.total.H}</p>
@@ -293,7 +296,7 @@ const ContestLayout = (props) => {
                       <h2 className="live-judging-title">QA and Gas Awards</h2>
                       <div className="pool-division-container">
                         <div className="pool-division">
-                          <p>$ 5,000 USDC</p>
+                          <p>$ 25,000 USDC</p>
                           <div className="findings-display">
                             <p>QA Reports</p>
                             <p className="key-number">
@@ -302,7 +305,7 @@ const ContestLayout = (props) => {
                           </div>
                         </div>
                         <div className="pool-division">
-                          <p>$ 5,000 USDC</p>
+                          <p>$ 25,000 USDC</p>
                           <div className="findings-display">
                             <p>Gas Reports</p>
                             <p className="key-number">
@@ -318,21 +321,19 @@ const ContestLayout = (props) => {
                         <p>{awards.length} wardens participated including:</p>
                       </div>
                       <div className="contest-live-judging-wardens">
-                        {
-                          displayTopWardens ?
-                          displayTopWardens.map((warden, index) => {
-                            return (
-                              <LeaderboardHandle
-                                handle={warden.handle}
-                                image={warden.image}
-                                link={warden.link}
-                                members={null}
-                                key={`${warden.handle}-${index}`}
-                              />
-                            )
-                          })
-                          : ''
-                        }
+                        {displayTopWardens
+                          ? displayTopWardens.map((warden, index) => {
+                              return (
+                                <LeaderboardHandle
+                                  handle={warden.handle}
+                                  image={warden.image}
+                                  link={warden.link}
+                                  members={null}
+                                  key={`${warden.handle}-${index}`}
+                                />
+                              );
+                            })
+                          : ""}
                       </div>
                     </div>
                   </div>

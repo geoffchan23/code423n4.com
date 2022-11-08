@@ -151,6 +151,23 @@ async function fetchContestOverviewData(repoName) {
   return response;
 }
 
+async function fetchJudges(repoName) {
+  const res = await fetch(
+    `${baseLocalUrl}getJudges?repo_name=${repoName}`,
+    {
+      method: "POST",
+      body: JSON.stringify({ token: jwt_token }),
+    }
+  );
+  let response;
+  if (res.ok) {
+    response = await res.json();
+  } else {
+    response = [];
+  }
+  return response;
+}
+
 function slugify(text) {
   return text
     .toString()
@@ -334,6 +351,9 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
           "https://github.com/code-423n4/"
         )[1];
         const responseOverview = await fetchContestOverviewData(repoName);
+        const judges = await fetchJudges(repoName);
+        //! would need to trim = C4 && null
+        console.log(judges.judges, "----", repoName)
 
         const simpleAwardCalc = await fetchAwardCalc(
           node.contestid,

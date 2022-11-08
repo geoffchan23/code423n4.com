@@ -305,10 +305,11 @@
 }
 .contest-live-judging-container {
   min-width: 350px;
-  border-bottom: 2px solid white;
+  border-bottom: 2px solid #D9D9D9;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-bottom: 16px;
 }
 .contest-live-judging-container:last-child {
   border-bottom: none;
@@ -319,7 +320,7 @@
   font-size: 12px !important;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 4px;
+  letter-spacing: 6px;
 }
 
 .award-container {
@@ -353,7 +354,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-column-gap: 0px;
-  margin-bottom: 14px;
+  /* margin-bottom: 14px; */
 }
 
 .pool-division:first-child {
@@ -366,6 +367,8 @@
 .key-number {
   font-size: 22px;
   font-weight: 700;
+  margin: 8px 0;
+  padding:0;
 }
 .contest-live-judging-wardens {
   width: 100%;
