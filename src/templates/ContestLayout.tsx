@@ -23,6 +23,7 @@ import FindingsList from "../components/FindingsList";
 import WardenDetails from "../components/WardenDetails";
 import ReactMarkdown from "react-markdown";
 // styles
+//@ts-ignore
 import * as styles from "../components/reporter/widgets/Widgets.module.scss";
 
 enum FindingsStatus {
@@ -67,43 +68,21 @@ const ContestLayout = (props) => {
     submissionPath,
     readmeContent,
     awards,
+    topWardens,
   } = fields;
   const { markdownRemark } = props.data;
   const handles = props.data.allHandlesJson.nodes;
-
-  const firstTenWardens = () => {
-    // take the sorted leader board.
-    // iterate over team
-  };
-
-  // useEffect(() => {
-  //   if (contestStats) {
-  //     let count = 0;
-  //     for (const [key, value] of Object.entries(contestStats)) {
-  //       for (const [a, b] of Object.entries(contestStats[key])) {
-  //         if (a === "unique") {
-  //           count += b;
-  //         }
-  //       }
-  //     }
-  //     setUniqueFindings(count);
-  //   }
-  // }, [])
-
-  const wardenCount = () => {
-    if (!awards) {
-      return 0;
+  // match handle && topWardens
+  const displayTopWardens = handles.map(el => {
+    if (!topWardens) {
+      return;
     }
-    let count = [];
-    awards.forEach((warden: any) => {
-      //@ts-ignore
-      if (!count.includes(warden.handle)) {
-        //@ts-ignore
-        count.push(warden.handle);
-      }
-    });
-    return count.length;
-  };
+    const match = topWardens.filter(warden => warden.handle === el.handle)
+    if (match.length > 0) {
+      return el;
+    }
+  }).filter(el => el!== undefined).slice(0,10);
+  console.log(displayTopWardens)
 
   const t = getDates(start_time, end_time);
   const dateDescription = `${amount}\n${t.startDay}—${t.endDay}`;
@@ -152,7 +131,7 @@ const ContestLayout = (props) => {
       }
     })();
   }, [currentUser, contestid]);
-  console.log(contestOverview);
+
   return (
     <DefaultLayout
       pageTitle={pageTitle}
@@ -336,34 +315,24 @@ const ContestLayout = (props) => {
                     <div className="contest-live-judging-container">
                       <h2 className="live-judging-title">Participants</h2>
                       <div style={{ textAlign: "left", width: "100%" }}>
-                        <p>{wardenCount()} wardens participated including:</p>
+                        <p>{awards.length} wardens participated including:</p>
                       </div>
                       <div className="contest-live-judging-wardens">
-                        {/* TODO */}
-                        <LeaderboardHandle
-                          handle={handles[30].handle}
-                          image={handles[30].image}
-                          link={handles[30].link}
-                          members={null}
-                        />
-                        <LeaderboardHandle
-                          handle={handles[30].handle}
-                          image={handles[30].image}
-                          link={handles[30].link}
-                          members={null}
-                        />
-                        <LeaderboardHandle
-                          handle={handles[30].handle}
-                          image={handles[30].image}
-                          link={handles[30].link}
-                          members={null}
-                        />
-                        <LeaderboardHandle
-                          handle={handles[30].handle}
-                          image={handles[30].image}
-                          link={handles[30].link}
-                          members={null}
-                        />
+                        {
+                          displayTopWardens ?
+                          displayTopWardens.map((warden, index) => {
+                            return (
+                              <LeaderboardHandle
+                                handle={warden.handle}
+                                image={warden.image}
+                                link={warden.link}
+                                members={null}
+                                key={`${warden.handle}-${index}`}
+                              />
+                            )
+                          })
+                          : ''
+                        }
                       </div>
                     </div>
                   </div>
@@ -478,6 +447,11 @@ export const query = graphql`
         artPath
         status
         awards {
+          handle
+          awardCoin
+          awardTotal
+        }
+        topWardens {
           handle
           awardCoin
           awardTotal

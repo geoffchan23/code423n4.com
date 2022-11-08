@@ -80,7 +80,6 @@ const getContestData = async () => {
 };
 
 //!! live judging
-// const repoName = findingsRepo.split("https://github.com/code-423n4/")[1];
 const baseLocalUrl = `http://localhost:8888/api/v0/`;
 const prodUrl = `https://api.code4rena.com/api/v0/`;
 const jwt_token = jwt.sign({ data: { callApi: true } }, JWTSignature);
@@ -121,23 +120,6 @@ async function fetchAwardCalc(contestId, sponsorName, url) {
     }),
   });
 
-  let response;
-  if (res.ok) {
-    response = await res.json();
-  } else {
-    response = 0;
-  }
-  return response;
-}
-
-async function fetchUntouchedIssues(repoName) {
-  const res = await fetch(
-    `${baseLocalUrl}getAllUntouchedIssues?repo_name=${repoName}&role=main`,
-    {
-      method: "POST",
-      body: JSON.stringify({ token: jwt_token }),
-    }
-  );
   let response;
   if (res.ok) {
     response = await res.json();
@@ -327,9 +309,6 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
   const nodes = await getNodes();
   const result = await getContestData();
   const responseTest = await fetchLeaderBoardInformation();
-  // console.log(responseTest);
-  //1. Work with leaderboardArray
-  //2. Get a count of warden back from award calc
 
   nodes.forEach(async (node, index) => {
     if (node.internal.type === `ContestsCsv`) {
@@ -356,44 +335,42 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
         )[1];
         const responseOverview = await fetchContestOverviewData(repoName);
 
-        //!! award calc not used
         const simpleAwardCalc = await fetchAwardCalc(
           node.contestid,
           node.sponsor,
           node.findingsRepo
         );
-        console.log("------====------")
-        if (simpleAwardCalc.findingAwardTotal) {
-          console.log("OK FETCHED")
-          console.log(simpleAwardCalc.findingAwardTotal)
-        } else {
-          console.log("oops")
-        }
-        console.log("-------", repoName);
 
-        // OK return # of H / M / QA / GAS
+        let count = 0;
+        const top10WardensCompeting = responseTest.leaderboard.map(element => {
+            const handle = element[0];
+            if (!simpleAwardCalc.findingAwardTotal) {
+              return;
+            }
+            if (count <= 10) {
+              const match = simpleAwardCalc.findingAwardTotal.filter(element => element.handle === handle);
+              if (match.length > 0) {
+                count ++;
+                return match[0];
+              }
+            }
+        }).filter(element => element !== undefined);
+
         createNodeField({
           node,
           name: `contestOverview`,
           value: responseOverview.overviewGrid,
         });
-        // createNodeField({
-        //   node,
-        //   name: `totalIssues`,
-        //   value: responseOverview.totalIssues - 1,
-        // });
-        //!! not used
         createNodeField({
           node,
           name: `awards`,
           value: simpleAwardCalc.findingAwardTotal,
         });
-        //!! not user anymore
-        // createNodeField({
-        //   node,
-        //   name: `totalNeedJudging`,
-        //   value: responseUntouched.issues - 1,
-        // });
+        createNodeField({
+          node,
+          name: `topWardens`,
+          value: top10WardensCompeting,
+        });
       }
     }
   });
