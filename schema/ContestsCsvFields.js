@@ -1,30 +1,9 @@
 const ContestsCsvFields = `
 
-type ContestStats {
-  total: Int
-  unique: Int
-}
-
-type ContestStatsRaw {
-  _0: ContestStats
-  _1: ContestStats
-  _2: ContestStats
-  _3: ContestStats
-  g: ContestStats
-  q: ContestStats
-}
-
 type Award {
-  contest: Int
   handle: String
-  finding: String
-  risk: String
-  pie: Float
-  split: Int
-  slice: Float
-  award: Float
   awardCoin: String
-  awardUSD: Float
+  awardTotal: Float
 }
 
 type TotalData {
@@ -37,6 +16,7 @@ type TotalData {
 type OverviewData {
   total: TotalData
   dupesID: TotalData
+  unique: TotalData
 }
 
 type ContestsCsvFields implements Node @dontInfer {
@@ -45,12 +25,10 @@ type ContestsCsvFields implements Node @dontInfer {
   artPath: String
   readmeContent: String
   status: String
-  judges: [String]
   contestOverview: OverviewData
   totalIssues: Int
   totalNeedJudging: Int
   awards: [Award]
-  contestStats: ContestStatsRaw
 }`;
 
 export default ContestsCsvFields;

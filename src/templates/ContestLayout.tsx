@@ -62,35 +62,33 @@ const ContestLayout = (props) => {
   // !!Live judging
   const {
     contestOverview,
-    judges,
     status,
-    totalIssues,
-    totalNeedJudging,
     artPath,
     submissionPath,
     readmeContent,
     awards,
-    contestStats
   } = fields;
   const { markdownRemark } = props.data;
   const handles = props.data.allHandlesJson.nodes;
-  console.log(contestStats);
+
   const firstTenWardens = () => {
-    
-  }
-  useEffect(() => {
-    if (contestStats) {
-      let count = 0;
-      for (const [key, value] of Object.entries(contestStats)) {
-        for (const [a, b] of Object.entries(contestStats[key])) {
-          if (a === "unique") {
-            count += b;
-          }
-        }
-      }
-      setUniqueFindings(count);
-    }
-  }, [])
+    // take the sorted leader board.
+    // iterate over team
+  };
+
+  // useEffect(() => {
+  //   if (contestStats) {
+  //     let count = 0;
+  //     for (const [key, value] of Object.entries(contestStats)) {
+  //       for (const [a, b] of Object.entries(contestStats[key])) {
+  //         if (a === "unique") {
+  //           count += b;
+  //         }
+  //       }
+  //     }
+  //     setUniqueFindings(count);
+  //   }
+  // }, [])
 
   const wardenCount = () => {
     if (!awards) {
@@ -154,7 +152,7 @@ const ContestLayout = (props) => {
       }
     })();
   }, [currentUser, contestid]);
-  console.log(status)
+  console.log(contestOverview);
   return (
     <DefaultLayout
       pageTitle={pageTitle}
@@ -306,9 +304,9 @@ const ContestLayout = (props) => {
                         <p className="key-number">{contestOverview.total.M}</p>
                       </div>
                       <div className="findings-display">
-                        <p>Confirmed Solo Findings</p>
+                        <p>Confirmed Unique Findings</p>
                         <p className="key-number">
-                          {contestStats ? uniqueFindings : ''}
+                          {contestOverview.unique.M + contestOverview.unique.H}
                         </p>
                       </div>
                     </div>
@@ -316,31 +314,56 @@ const ContestLayout = (props) => {
                       <h2 className="live-judging-title">QA and Gas Awards</h2>
                       <div className="pool-division-container">
                         <div className="pool-division">
-                            <p>$ 5,000 USDC</p>
+                          <p>$ 5,000 USDC</p>
                           <div className="findings-display">
                             <p>QA Reports</p>
-                            <p className="key-number">{contestOverview.total.QA}</p>
+                            <p className="key-number">
+                              {contestOverview.total.QA}
+                            </p>
                           </div>
                         </div>
                         <div className="pool-division">
-                            <p>$ 5,000 USDC</p>
+                          <p>$ 5,000 USDC</p>
                           <div className="findings-display">
                             <p>Gas Reports</p>
-                            <p className="key-number">{contestOverview.total.Gas}</p>
+                            <p className="key-number">
+                              {contestOverview.total.Gas}
+                            </p>
                           </div>
                         </div>
                       </div>
                     </div>
                     <div className="contest-live-judging-container">
                       <h2 className="live-judging-title">Participants</h2>
-                      <div style={{textAlign: 'left', width:'100%'}}>
+                      <div style={{ textAlign: "left", width: "100%" }}>
                         <p>{wardenCount()} wardens participated including:</p>
                       </div>
                       <div className="contest-live-judging-wardens">
-                        <LeaderboardHandle handle={handles[30].handle} image={handles[30].image} link={handles[30].link} members={null}  />
-                        <LeaderboardHandle handle={handles[30].handle} image={handles[30].image} link={handles[30].link} members={null}  />
-                        <LeaderboardHandle handle={handles[30].handle} image={handles[30].image} link={handles[30].link} members={null}  />
-                        <LeaderboardHandle handle={handles[30].handle} image={handles[30].image} link={handles[30].link} members={null}  />
+                        {/* TODO */}
+                        <LeaderboardHandle
+                          handle={handles[30].handle}
+                          image={handles[30].image}
+                          link={handles[30].link}
+                          members={null}
+                        />
+                        <LeaderboardHandle
+                          handle={handles[30].handle}
+                          image={handles[30].image}
+                          link={handles[30].link}
+                          members={null}
+                        />
+                        <LeaderboardHandle
+                          handle={handles[30].handle}
+                          image={handles[30].image}
+                          link={handles[30].link}
+                          members={null}
+                        />
+                        <LeaderboardHandle
+                          handle={handles[30].handle}
+                          image={handles[30].image}
+                          link={handles[30].link}
+                          members={null}
+                        />
                       </div>
                     </div>
                   </div>
@@ -453,21 +476,11 @@ export const query = graphql`
         readmeContent
         contestPath
         artPath
-        judges
         status
-        totalIssues
-        totalNeedJudging
         awards {
-          award
-          awardCoin
-          awardUSD
-          contest
-          finding
           handle
-          pie
-          risk
-          split
-          slice
+          awardCoin
+          awardTotal
         }
         contestOverview {
           total {
@@ -482,31 +495,11 @@ export const query = graphql`
             QA
             Gas
           }
-        }
-        contestStats {
-          _0 {
-            total
-            unique
-          }
-          _2 {
-            total
-            unique
-          }
-          _1 {
-            total
-            unique
-          }
-          _3 {
-            total
-            unique
-          }
-          g {
-            total
-            unique
-          }
-          q {
-            total
-            unique
+          unique {
+            H
+            M
+            QA
+            Gas
           }
         }
       }

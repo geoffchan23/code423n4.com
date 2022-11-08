@@ -86,7 +86,7 @@ const prodUrl = `https://api.code4rena.com/api/v0/`;
 const jwt_token = jwt.sign({ data: { callApi: true } }, JWTSignature);
 
 async function fetchLeaderBoardInformation() {
-  const res = await fetch(`${prodUrl}getAwards`, {
+  const res = await fetch(`${baseLocalUrl}getAwards`, {
     method: "POST",
     body: JSON.stringify({
       token: jwt_token,
@@ -103,13 +103,14 @@ async function fetchLeaderBoardInformation() {
 }
 
 async function fetchAwardCalc(contestId, sponsorName, url) {
-  const res = await fetch(`${prodUrl}awardCalc`, {
+  const res = await fetch(`${baseLocalUrl}simpleAwardCalc`, {
     method: "POST",
     body: JSON.stringify({
       token: jwt_token,
       contestId,
       sponsorName,
       url,
+      short:true,
       awardInfo: {
         mainPool: 5,
         gasPool: 1,
@@ -167,26 +168,6 @@ async function fetchContestOverviewData(repoName) {
   }
   return response;
 }
-
-// async function fetchJudges(repoName) {
-//   const res = await fetch(`${baseLocalUrl}getJudges?repo_name=${repoName}`, {
-//     method: "POST",
-//     body: JSON.stringify({ token: jwt_token }),
-//   });
-//   let response;
-//   if (res.ok) {
-//     response = await res.json();
-//   } else {
-//     response = { judges: [] };
-//   }
-//   return response;
-// }
-
-// const graphqlWithAuth = graphql.defaults({
-//   headers: {
-//     authorization: `Bearer ${token}`,
-//   },
-// });
 
 function slugify(text) {
   return text
@@ -347,6 +328,8 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
   const result = await getContestData();
   const responseTest = await fetchLeaderBoardInformation();
   // console.log(responseTest);
+  //1. Work with leaderboardArray
+  //2. Get a count of warden back from award calc
 
   nodes.forEach(async (node, index) => {
     if (node.internal.type === `ContestsCsv`) {
@@ -372,77 +355,45 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
           "https://github.com/code-423n4/"
         )[1];
         const responseOverview = await fetchContestOverviewData(repoName);
-        // const responseJudges = await fetchJudges(repoName);
-        const responseUntouched = await fetchUntouchedIssues(repoName);
-        //!! not correct, doesn't consider the closed // unsatisfactory ones
+
+        //!! award calc not used
         const simpleAwardCalc = await fetchAwardCalc(
           node.contestid,
           node.sponsor,
           node.findingsRepo
         );
         console.log("------====------")
-        console.log(responseOverview.overviewGrid)
-        console.log(simpleAwardCalc.info || 'Oops fetch failed');
+        if (simpleAwardCalc.findingAwardTotal) {
+          console.log("OK FETCHED")
+          console.log(simpleAwardCalc.findingAwardTotal)
+        } else {
+          console.log("oops")
+        }
         console.log("-------", repoName);
-        // createNodeField({
-        //   node,
-        //   name: `judges`,
-        //   value: responseJudges.judges,
-        // });
+
+        // OK return # of H / M / QA / GAS
         createNodeField({
           node,
           name: `contestOverview`,
           value: responseOverview.overviewGrid,
         });
-        createNodeField({
-          node,
-          name: `totalIssues`,
-          value: responseOverview.totalIssues - 1,
-        });
+        // createNodeField({
+        //   node,
+        //   name: `totalIssues`,
+        //   value: responseOverview.totalIssues - 1,
+        // });
+        //!! not used
         createNodeField({
           node,
           name: `awards`,
-          value: simpleAwardCalc.awards,
+          value: simpleAwardCalc.findingAwardTotal,
         });
-        createNodeField({
-          node,
-          name: `totalNeedJudging`,
-          value: responseUntouched.issues - 1,
-        });
-        if (simpleAwardCalc.info && simpleAwardCalc.info.contestStatsRaw) {
-          const contestJson = JSON.parse(simpleAwardCalc.info.contestStatsRaw);
-          console.log("ok ----", repoName)
-          createNodeField({
-            node,
-            name: `contestStats`,
-            value: {
-              _0:{
-                total: contestJson["0"].total,
-                unique: contestJson["0"].unique
-              },
-              _1:{
-                total: contestJson["1"].total,
-                unique: contestJson["1"].unique
-              },
-              _2:{
-                total: contestJson["2"].total,
-                unique: contestJson["2"].unique
-              },
-              _3:{
-                total: contestJson["3"].total,
-                unique: contestJson["3"].unique
-              },
-              q:{
-                total: contestJson.q.total,
-                unique: contestJson.q.unique
-              },
-              g:{
-                total: contestJson.g.total,
-                unique: contestJson.g.unique
-              },
-            },
-          });
-        }
+        //!! not user anymore
+        // createNodeField({
+        //   node,
+        //   name: `totalNeedJudging`,
+        //   value: responseUntouched.issues - 1,
+        // });
       }
     }
   });
