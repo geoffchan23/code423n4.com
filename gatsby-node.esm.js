@@ -1,5 +1,6 @@
 import { graphql } from "@octokit/graphql";
 import format from "date-fns/format";
+import dedent from "dedent";
 import { createFilePath } from "gatsby-source-filesystem";
 import fetch from "node-fetch";
 import path from "path";
@@ -44,12 +45,6 @@ const getContestData = async () => {
                 does_not_equal: "Possible",
               },
             },
-            {
-              property: "Classified?",
-              checkbox: {
-                equals: false,
-              },
-            },
           ],
         },
       });
@@ -64,13 +59,30 @@ const getContestData = async () => {
         page.properties.Status.select.name !== "Lost deal" ||
         page.properties.Status.select.name !== "Possible" ||
         page.properties.Status.select.name ||
-        page.properties.ContestID.number ||
-        page.properties["Classified?"].checkbox === false
+        page.properties.ContestID.number
       ) {
-        return {
-          contestId: page.properties.ContestID.number || null,
-          status: page.properties.Status.select.name || null,
-        };
+        if (page.properties["Classified?"].checkbox === false) {
+          return {
+            contestId: page.properties.ContestID.number || null,
+            status: page.properties.Status.select.name || null,
+            codeAccess: "public",
+          };
+        } else if (
+          page.properties["Code access"].select &&
+          page.properties["Code access"].select.name.trim() === "Certified only"
+        ) {
+          return {
+            contestId: page.properties.ContestID.number || null,
+            status: page.properties.Status.select.name || null,
+            codeAccess: "certified",
+          };
+        } else {
+          return {
+            contestId: page.properties.ContestID.number || null,
+            status: page.properties.Status.select.name || null,
+            codeAccess: null,
+          };
+        }
       }
     });
     return statusObject;
@@ -109,7 +121,7 @@ async function fetchAwardCalc(contestId, sponsorName, url) {
       contestId,
       sponsorName,
       url,
-      short:true,
+      short: true,
       awardInfo: {
         mainPool: 5,
         gasPool: 1,
@@ -153,13 +165,10 @@ async function fetchContestOverviewData(repoName) {
 }
 
 async function fetchJudges(repoName) {
-  const res = await fetch(
-    `${baseLocalUrl}getJudges?repo_name=${repoName}`,
-    {
-      method: "POST",
-      body: JSON.stringify({ token: jwt_token }),
-    }
-  );
+  const res = await fetch(`${baseLocalUrl}getJudges?repo_name=${repoName}`, {
+    method: "POST",
+    body: JSON.stringify({ token: jwt_token }),
+  });
   let response;
   if (res.ok) {
     response = await res.json();
@@ -168,6 +177,20 @@ async function fetchJudges(repoName) {
   }
   return response;
 }
+
+const privateContestMessage = dedent`
+# Contest details are not available. Why not?
+
+The contest is limited to specific participants. Most Code4rena contests are open and public, but some have special requirements. In those cases, the code and contest details remain private (at least for now).
+
+For more information on participating in a private audit, please see this [post](https://mirror.xyz/c4blog.eth/Ww3sILR-e5iWoMYNpZEB9UME_vA8G0Yqa6TYvpSdEM0).
+`;
+
+const graphqlWithAuth = graphql.defaults({
+  headers: {
+    authorization: `Bearer ${token}`,
+  },
+});
 
 function slugify(text) {
   return text
@@ -211,6 +234,9 @@ async function fetchReadmeMarkdown(contestNode) {
       process.env.GITHUB_CONTEST_REPO_OWNER
     }/${getRepoName(contestNode)}/main/README.md`
   );
+  if (response.status === 404) {
+    return privateContestMessage;
+  }
   const data = await response.text();
   return data;
 }
@@ -325,28 +351,39 @@ exports.onCreateNode = async ({ node, getNode, actions }) => {
 exports.sourceNodes = async ({ actions, getNodes }) => {
   const { createNodeField } = actions;
   const nodes = await getNodes();
-  const result = await getContestData();
   const responseTest = await fetchLeaderBoardInformation();
+  const contestStatusData = await getContestData();
 
   nodes.forEach(async (node, index) => {
     if (node.internal.type === `ContestsCsv`) {
-      const status = result.filter(
+      const dataForCurrentContest = contestStatusData.filter(
         (element) => element.contestId === node.contestid
       );
 
       createNodeField({
         node,
         name: `status`,
-        value: status.length > 0 ? status[0].status : undefined,
+        value:
+          dataForCurrentContest.length > 0
+            ? dataForCurrentContest[0].status
+            : undefined,
+      });
+      createNodeField({
+        node,
+        name: `codeAccess`,
+        value:
+          dataForCurrentContest.length > 0
+            ? dataForCurrentContest[0].codeAccess
+            : undefined,
       });
 
       // TODO : make sure these condition are OK or need other status
       if (
-        status.length > 0 &&
-        (status[0].status === "Active" ||
-          status[0].status === "Judging" ||
-          status[0].status === "Sponsor Review" ||
-          status[0].status === "Needs Judging")
+        dataForCurrentContest.length > 0 &&
+        (dataForCurrentContest[0].status === "Active" ||
+          dataForCurrentContest[0].status === "Judging" ||
+          dataForCurrentContest[0].status === "Sponsor Review" ||
+          dataForCurrentContest[0].status === "Needs Judging")
       ) {
         const repoName = node.findingsRepo.split(
           "https://github.com/code-423n4/"
@@ -354,7 +391,11 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
         const responseOverview = await fetchContestOverviewData(repoName);
         const judges = await fetchJudges(repoName);
         //! would need to trim = C4 && null
-        console.log(judges.judges.filter(el => (el !== null && el !== "C4")), "----", repoName)
+        console.log(
+          judges.judges.filter((el) => el !== null && el !== "C4"),
+          "----",
+          repoName
+        );
 
         const simpleAwardCalc = await fetchAwardCalc(
           node.contestid,
@@ -363,19 +404,23 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
         );
 
         let count = 0;
-        const top10WardensCompeting = responseTest.leaderboard.map(element => {
+        const top10WardensCompeting = responseTest.leaderboard
+          .map((element) => {
             const handle = element[0];
             if (!simpleAwardCalc.findingAwardTotal) {
               return;
             }
             if (count <= 10) {
-              const match = simpleAwardCalc.findingAwardTotal.filter(element => element.handle === handle);
+              const match = simpleAwardCalc.findingAwardTotal.filter(
+                (element) => element.handle === handle
+              );
               if (match.length > 0) {
-                count ++;
+                count++;
                 return match[0];
               }
             }
-        }).filter(element => element !== undefined);
+          })
+          .filter((element) => element !== undefined);
 
         createNodeField({
           node,
