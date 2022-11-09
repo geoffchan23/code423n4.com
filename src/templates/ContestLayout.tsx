@@ -43,7 +43,7 @@ const ContestLayout = (props) => {
     FindingsStatus.Fetching
   );
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [uniqueFindings, setUniqueFindings] = useState<number>(0);
+  const [isLiveJudging, setIsLiveJudging] = useState<boolean>(false);
 
   // hooks
   const { currentUser } = useUser();
@@ -72,7 +72,7 @@ const ContestLayout = (props) => {
   } = fields;
   const { markdownRemark } = props.data;
   const handles = props.data.allHandlesJson.nodes;
-  // match handle && topWardens
+
   const displayTopWardens = handles
     .map((el) => {
       if (!topWardens) {
@@ -85,7 +85,6 @@ const ContestLayout = (props) => {
     })
     .filter((el) => el !== undefined)
     .slice(0, 10);
-  console.log(displayTopWardens);
 
   const t = getDates(start_time, end_time);
   const dateDescription = `${amount}\n${t.startDay}—${t.endDay}`;
@@ -98,6 +97,15 @@ const ContestLayout = (props) => {
       ? markdownRemark.frontmatter.altUrl
       : `/reports/${props.data.markdownRemark.frontmatter.slug}`;
   }
+
+  useEffect(() => {
+    setIsLiveJudging(t.contestStatus === "active" ||
+    status === "Active" ||
+    status === "Judging" ||
+    status === "Sponsor Review" ||
+    status === "Needs Judging");
+  }, [])
+
   useEffect(() => {
     (async () => {
       if (currentUser.isLoggedIn) {
@@ -145,11 +153,12 @@ const ContestLayout = (props) => {
       <ClientOnly>
         <div className="contest-wrapper contest-artwork-wrapper">
           <div className="contest-tippy-top">
-            {t.contestStatus === "soon" || t.contestStatus === "active" ? (
+            {(t.contestStatus === "soon" || t.contestStatus === "active") ? (
               <Countdown
                 start={start_time}
                 end={end_time}
                 isPreview={findingsRepo === ""}
+                isLiveJudging={isLiveJudging}
               />
             ) : (
               <p>
@@ -235,11 +244,7 @@ const ContestLayout = (props) => {
           <Tabs className="contest-tabs">
             <TabList>
               {/* //  !! LIVE JUDGING */}
-              {(t.contestStatus === "active" ||
-                status === "Active" ||
-                status === "Judging" ||
-                status === "Sponsor Review" ||
-                status === "Needs Judging") && <Tab>Live judging</Tab>}
+              {(isLiveJudging) && <Tab>Live judging</Tab>}
 
               {props.data.leaderboardFindings.findings.length > 0 && (
                 <Tab>Results</Tab>
@@ -247,11 +252,7 @@ const ContestLayout = (props) => {
               <Tab>Details</Tab>
               {t.contestStatus === "active" && <Tab>Findings</Tab>}
             </TabList>
-            {(t.contestStatus === "active" ||
-              status === "Active" ||
-              status === "Judging" ||
-              status === "Sponsor Review" ||
-              status === "Needs Judging") && contestOverview && (
+            {(isLiveJudging) && contestOverview && (
               <TabPanel>
                 <div className="contest-wrapper">
                   <div className="contest-wrapper-live-judging">

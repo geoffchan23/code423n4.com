@@ -145,6 +145,7 @@ async function fetchContestOverviewData(repoName) {
       overviewGrid: {
         total: { H: 0, M: 0, QA: 0, Gas: 0 },
         dupesID: { H: 0, M: 0, QA: 0, Gas: 0 },
+        unique: { H: 0, M: 0, QA: 0, Gas: 0 },
       },
     };
   }
@@ -353,7 +354,7 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
         const responseOverview = await fetchContestOverviewData(repoName);
         const judges = await fetchJudges(repoName);
         //! would need to trim = C4 && null
-        console.log(judges.judges, "----", repoName)
+        console.log(judges.judges.filter(el => (el !== null && el !== "C4")), "----", repoName)
 
         const simpleAwardCalc = await fetchAwardCalc(
           node.contestid,

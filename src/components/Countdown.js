@@ -7,6 +7,7 @@ const Countdown = ({
   isPreview,
   text = undefined,
   updateContestStatus = undefined,
+  isLiveJudging
 }) => {
   const [contestTimer, setContestTimer] = useState(getDates(start, end));
   const [timeLeft, setTimeLeft] = useState(
@@ -36,7 +37,9 @@ const Countdown = ({
     <div className="countdown">
       <h5>
         <span className="wrapper-time">
-          {contestTimer.contestStatus === "active" ? (
+          {isLiveJudging ? (
+            <span className="countdown-live-judging"></span>
+          ) : contestTimer.contestStatus === "active" ? (
             <span className="countdown-live"></span>
           ) : null}
           <span className="days">{timeLeft.days}</span> days +{" "}
