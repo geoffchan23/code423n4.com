@@ -378,9 +378,13 @@
   grid-row-gap: 12px;
 }
 .contest-live-judging-wardens > div {
-  border: 2px solid white;
+  /* border: 2px solid white; */
+  background-color: #3D3053;
   padding: 10px;
   border-radius: 6px;
+}
+.contest-live-judging-wardens > div > a {
+  text-decoration: none;
 }
 
 @media only screen and (max-width: 965px) {

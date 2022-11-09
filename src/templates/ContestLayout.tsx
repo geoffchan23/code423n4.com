@@ -293,8 +293,16 @@ const ContestLayout = (props) => {
                         <p className="key-number">{contestOverview.total.H}</p>
                       </div>
                       <div className="findings-display">
+                        <p>High duplicates</p>
+                        <p className="key-number">{contestOverview.dupesID.H}</p>
+                      </div>
+                      <div className="findings-display">
                         <p>Medium Risk Findings</p>
                         <p className="key-number">{contestOverview.total.M}</p>
+                      </div>
+                      <div className="findings-display">
+                        <p>Medium duplicates</p>
+                        <p className="key-number">{contestOverview.dupesID.M}</p>
                       </div>
                       <div className="findings-display">
                         <p>Confirmed Unique Findings</p>
