@@ -13,10 +13,18 @@ type TotalData {
   Gas: Int
 }
 
+type TimeStampsData {
+  H: [String]
+  M: [String]
+  QA: [String]
+  Gas: [String]
+}
+
 type OverviewData {
   total: TotalData
   dupesID: TotalData
   unique: TotalData
+  timeStamps: TimeStampsData
 }
 
 type ContestsCsvFields implements Node @dontInfer {
@@ -31,6 +39,7 @@ type ContestsCsvFields implements Node @dontInfer {
   awards: [Award]
   topWardens: [Award]
   codeAccess: String
+  judges: [String]
 }`;
 
 export default ContestsCsvFields;

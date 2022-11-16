@@ -103,6 +103,7 @@ const ContestLayout = (props) => {
     setIsLiveJudging(t.contestStatus === "active" ||
     status === "Active" ||
     status === "Judging" ||
+    status === "Pre-sort" ||
     status === "Sponsor Review" ||
     status === "Needs Judging");
   }, [])
@@ -495,6 +496,12 @@ export const query = graphql`
             M
             QA
             Gas
+          }
+          timeStamps {
+            Gas
+            H
+            M
+            QA
           }
         }
         codeAccess

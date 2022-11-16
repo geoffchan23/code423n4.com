@@ -168,6 +168,7 @@ async function fetchContestOverviewData(repoName) {
         total: { H: 0, M: 0, QA: 0, Gas: 0 },
         dupesID: { H: 0, M: 0, QA: 0, Gas: 0 },
         unique: { H: 0, M: 0, QA: 0, Gas: 0 },
+        timeStamps: { H: [], M: [], QA: [], Gas: [] },
       },
     };
   }
@@ -392,6 +393,7 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
         dataForCurrentContest.length > 0 &&
         (dataForCurrentContest[0].status === "Active" ||
           dataForCurrentContest[0].status === "Judging" ||
+          dataForCurrentContest[0].status === "Pre-sort" ||
           dataForCurrentContest[0].status === "Sponsor Review" ||
           dataForCurrentContest[0].status === "Needs Judging")
       ) {
@@ -406,6 +408,7 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
           "----",
           repoName
         );
+        console.log(responseOverview)
 
         const simpleAwardCalc = await fetchAwardCalc(
           node.contestid,
@@ -446,6 +449,11 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
           node,
           name: `topWardens`,
           value: top10WardensCompeting,
+        });
+        createNodeField({
+          node,
+          name: `judges`,
+          value: judges.judges.filter((el) => el !== null && el !== "C4"),
         });
       }
     }
