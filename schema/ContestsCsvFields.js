@@ -35,7 +35,7 @@ type ContestsCsvFields implements Node @dontInfer {
   status: String
   contestOverview: OverviewData
   totalIssues: Int
-  totalNeedJudging: Int
+  totalJudged: Int
   awards: [Award]
   topWardens: [Award]
   codeAccess: String

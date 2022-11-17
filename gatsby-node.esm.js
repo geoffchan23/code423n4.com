@@ -170,6 +170,8 @@ async function fetchContestOverviewData(repoName) {
         unique: { H: 0, M: 0, QA: 0, Gas: 0 },
         timeStamps: { H: [], M: [], QA: [], Gas: [] },
       },
+      totalIssues: 0,
+      totalJudged: 0,
     };
   }
   return response;
@@ -408,7 +410,6 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
           "----",
           repoName
         );
-        console.log(responseOverview)
 
         const simpleAwardCalc = await fetchAwardCalc(
           node.contestid,
@@ -439,6 +440,16 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
           node,
           name: `contestOverview`,
           value: responseOverview.overviewGrid,
+        });
+        createNodeField({
+          node,
+          name: `totalIssues`,
+          value: responseOverview.totalIssues,
+        });
+        createNodeField({
+          node,
+          name: `totalJudged`,
+          value: responseOverview.totalJudged,
         });
         createNodeField({
           node,

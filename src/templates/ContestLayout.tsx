@@ -64,6 +64,8 @@ const ContestLayout = (props) => {
   // !!Live judging
   const {
     contestOverview,
+    totalIssues,
+    totalJudged,
     status,
     artPath,
     submissionPath,
@@ -73,6 +75,8 @@ const ContestLayout = (props) => {
   } = fields;
   const { markdownRemark } = props.data;
   const handles = props.data.allHandlesJson.nodes;
+  console.log(start_time, end_time, totalIssues, totalJudged);
+
 
   const displayTopWardens = handles
     .map((el) => {
@@ -478,6 +482,8 @@ export const query = graphql`
           awardCoin
           awardTotal
         }
+        totalIssues
+        totalJudged
         contestOverview {
           total {
             H
