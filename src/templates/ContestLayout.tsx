@@ -350,6 +350,10 @@ const ContestLayout = (props) => {
                       </div>
                     </div>
 
+                    <div className="contest-live-judging-container">
+                      <h2 className="live-judging-title">Submission timeline</h2>
+                      
+                    </div>
 
                     {/* <div className="contest-live-judging-container">
                       <h2 className="live-judging-title">Total price Pool</h2>
