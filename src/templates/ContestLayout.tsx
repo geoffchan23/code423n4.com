@@ -72,10 +72,11 @@ const ContestLayout = (props) => {
     readmeContent,
     awards,
     topWardens,
+    judges,
   } = fields;
   const { markdownRemark } = props.data;
   const handles = props.data.allHandlesJson.nodes;
-  console.log(start_time, end_time, totalIssues, totalJudged);
+  console.log(start_time, end_time, totalIssues, totalJudged,judges);
 
 
   const displayTopWardens = handles
@@ -271,8 +272,34 @@ const ContestLayout = (props) => {
               <TabPanel>
                 <div className="contest-wrapper">
                   <div className="contest-wrapper-live-judging">
+                    <div className="contest-live-judging-container contest-live-judging-container-top">
+                      <div>
+                        <div className="judging-indicator">
+                          {" "}
+                        </div>
+                        <p>
+                          Live judging | last update on XXXXXX
+                        </p>
+                      </div>
+                      <div>
+                        <p>
+                          {totalJudged}/{totalIssues - 1} Findings evaluated
+                        </p>
+                      </div>
+                    </div>
                     <div className="contest-live-judging-container">
-                      <h2 className="live-judging-title">Judging</h2>
+                      <h2 className="live-judging-title">Judges</h2>
+                      <div>
+                        {
+                          judges && judges.length > 0 ?
+                          judges.map((judge: string, index: number) =>{
+                            console.log(judge);
+                            return <p key={`${judge}-${index}`}>{judge}</p>
+                          })
+                          :
+                          ''
+                        }
+                      </div>
                     </div>
                     <div className="contest-live-judging-container">
                       <h2 className="live-judging-title">Total price Pool</h2>
@@ -482,6 +509,7 @@ export const query = graphql`
           awardCoin
           awardTotal
         }
+        judges
         totalIssues
         totalJudged
         contestOverview {

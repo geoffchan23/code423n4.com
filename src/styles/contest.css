@@ -304,7 +304,7 @@
   justify-content: center;
 }
 .contest-live-judging-container {
-  min-width: 350px;
+  min-width: 500px;
   border-bottom: 2px solid #D9D9D9;
   display: flex;
   flex-direction: column;
@@ -313,6 +313,27 @@
 }
 .contest-live-judging-container:last-child {
   border-bottom: none;
+}
+
+.contest-live-judging-container-top,
+.contest-live-judging-container-top div:first-child {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.judging-indicator {
+  width: 9.09px;
+  height: 9.09px;
+  background: #5FFFC5;
+  border-radius: 50%;
+  margin-right: 8px;
+  box-shadow: 0px 0px 10px #5fffc5;
+}
+
+.contest-live-judging-container-top div p {
+  font-size: 14px;
 }
 
 .live-judging-title {
