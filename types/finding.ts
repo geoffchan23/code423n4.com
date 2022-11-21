@@ -62,7 +62,17 @@ export interface TotalData {
   QA: number;
   Gas: number;
 }
+
+interface TimeStampsData {
+  H: [String]
+  M: [String]
+  QA: [String]
+  Gas: [String]
+}
+
 export interface OverviewData {
   total: TotalData;
   dupesID: TotalData;
+  unique?: TotalData;
+  timesStamp: TimeStampsData;
 }

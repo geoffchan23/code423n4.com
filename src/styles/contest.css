@@ -304,8 +304,8 @@
   justify-content: center;
 }
 .contest-live-judging-container {
-  min-width: 500px;
-  border-bottom: 2px solid #D9D9D9;
+  min-width: 600px;
+  border-bottom: 2px solid #71678A;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -321,6 +321,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  border-bottom: none;
 }
 
 .judging-indicator {
@@ -338,11 +339,36 @@
 
 .live-judging-title {
   color: white;
-  font-size: 12px !important;
+  font-size: 20px !important;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 6px;
 }
+
+
+.data-division-container {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-column-gap: 0px;
+  margin-bottom: 16px;
+}
+
+.key-number-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.key-number-container > div:first-child {
+  border-bottom: 1px solid #71678A;
+  margin-bottom: 20px;
+}
+
+.key-number-container:last-child {
+  width: 100%;
+}
+
 
 .award-container {
   display: flex;
@@ -388,7 +414,7 @@
 .key-number {
   font-size: 22px;
   font-weight: 700;
-  margin: 8px 0;
+  margin: 20px 0;
   padding:0;
 }
 .contest-live-judging-wardens {

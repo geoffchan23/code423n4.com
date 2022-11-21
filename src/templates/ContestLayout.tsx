@@ -25,6 +25,7 @@ import ReactMarkdown from "react-markdown";
 // styles
 //@ts-ignore
 import * as styles from "../components/reporter/widgets/Widgets.module.scss";
+import OverviewTable from "../components/OverviewTable/OverviewTable";
 
 enum FindingsStatus {
   Fetching = "fetching",
@@ -76,8 +77,7 @@ const ContestLayout = (props) => {
   } = fields;
   const { markdownRemark } = props.data;
   const handles = props.data.allHandlesJson.nodes;
-  console.log(start_time, end_time, totalIssues, totalJudged,judges);
-
+  console.log(start_time, end_time, totalIssues, totalJudged, judges);
 
   const displayTopWardens = handles
     .map((el) => {
@@ -105,13 +105,15 @@ const ContestLayout = (props) => {
   }
 
   useEffect(() => {
-    setIsLiveJudging(t.contestStatus === "active" ||
-    status === "Active" ||
-    status === "Judging" ||
-    status === "Pre-sort" ||
-    status === "Sponsor Review" ||
-    status === "Needs Judging");
-  }, [])
+    setIsLiveJudging(
+      t.contestStatus === "active" ||
+        status === "Active" ||
+        status === "Judging" ||
+        status === "Pre-sort" ||
+        status === "Sponsor Review" ||
+        status === "Needs Judging"
+    );
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -168,7 +170,7 @@ const ContestLayout = (props) => {
       <ClientOnly>
         <div className="contest-wrapper contest-artwork-wrapper">
           <div className="contest-tippy-top">
-            {(t.contestStatus === "soon" || t.contestStatus === "active") ? (
+            {t.contestStatus === "soon" || t.contestStatus === "active" ? (
               <Countdown
                 start={start_time}
                 end={end_time}
@@ -260,7 +262,7 @@ const ContestLayout = (props) => {
           <Tabs className="contest-tabs">
             <TabList>
               {/* //  !! LIVE JUDGING */}
-              {(isLiveJudging) && <Tab>Live judging</Tab>}
+              {isLiveJudging && <Tab>Live judging</Tab>}
 
               {props.data.leaderboardFindings.findings.length > 0 && (
                 <Tab>Results</Tab>
@@ -268,18 +270,14 @@ const ContestLayout = (props) => {
               <Tab>Details</Tab>
               {t.contestStatus === "active" && <Tab>Findings</Tab>}
             </TabList>
-            {(isLiveJudging) && contestOverview && (
+            {isLiveJudging && contestOverview && (
               <TabPanel>
                 <div className="contest-wrapper">
                   <div className="contest-wrapper-live-judging">
                     <div className="contest-live-judging-container contest-live-judging-container-top">
                       <div>
-                        <div className="judging-indicator">
-                          {" "}
-                        </div>
-                        <p>
-                          Live judging | last update on XXXXXX
-                        </p>
+                        <div className="judging-indicator"> </div>
+                        <p>Live judging | last update on XXXXXX</p>
                       </div>
                       <div>
                         <p>
@@ -290,18 +288,70 @@ const ContestLayout = (props) => {
                     <div className="contest-live-judging-container">
                       <h2 className="live-judging-title">Judges</h2>
                       <div>
-                        {
-                          judges && judges.length > 0 ?
-                          judges.map((judge: string, index: number) =>{
-                            console.log(judge);
-                            return <p key={`${judge}-${index}`}>{judge}</p>
-                          })
-                          :
-                          ''
-                        }
+                        {judges && judges.length > 0
+                          ? judges.map((judge: string, index: number) => {
+                              console.log(judge);
+                              return <p key={`${judge}-${index}`}>{judge}</p>;
+                            })
+                          : ""}
                       </div>
                     </div>
                     <div className="contest-live-judging-container">
+                      <h2 className="live-judging-title">Results</h2>
+                      <div className="data-division-container">
+                        <div className="key-number-container">
+                          <div>
+                            <p className="key-number">High-Risk</p>
+                          </div>
+                          <div>
+                            <div className="findings-display">
+                              <p>Unique</p>
+                              <p className="key-number">
+                                {contestOverview.unique.H}
+                              </p>
+                            </div>
+                            <div className="findings-display">
+                              <p>Total High Risk findings</p>
+                              <p className="key-number">
+                                {contestOverview.total.H}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <div>{/* graph */}</div>
+                      </div>
+                      <div className="data-division-container">
+                        <div className="key-number-container">
+                          <div>
+                            <p className="key-number">Medium-Risk</p>
+                          </div>
+                          <div>
+                            <div className="findings-display">
+                              <p>Unique</p>
+                              <p className="key-number">
+                                {contestOverview.unique.M}
+                              </p>
+                            </div>
+                            <div className="findings-display">
+                              <p>Total Medium Risk findings</p>
+                              <p className="key-number">
+                                {contestOverview.total.M}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <div>{/* graph */}</div>
+                      </div>
+                      <div className="key-number-container">
+                        <div>
+                          <p className="key-number">Findings summary</p>
+                        </div>
+                        <OverviewTable overviewData={contestOverview} />
+                      </div>
+                    </div>
+
+
+                    {/* <div className="contest-live-judging-container">
                       <h2 className="live-judging-title">Total price Pool</h2>
                       <div className="award-container">
                         <img
@@ -365,7 +415,7 @@ const ContestLayout = (props) => {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                     <div className="contest-live-judging-container">
                       <h2 className="live-judging-title">Participants</h2>
                       <div style={{ textAlign: "left", width: "100%" }}>
