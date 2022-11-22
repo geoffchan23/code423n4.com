@@ -369,6 +369,8 @@ const ContestLayout = (props) => {
                       <Graph
                         timeStamps={contestOverview.timeStamps}
                         type={"Bar"}
+                        startTime={start_time}
+                        endTime={start_time}
                       />
                     </div>
                     <div className="contest-live-judging-container">

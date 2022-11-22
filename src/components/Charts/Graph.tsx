@@ -14,7 +14,9 @@ const Graph: React.FC<{
   unique?: number;
   type: string;
   timeStamps?: TimeStampsData;
-}> = ({ total, unique, type, timeStamps }) => {
+  startTime?: string;
+  endTime?: string;
+}> = ({ total, unique, type, timeStamps, startTime, endTime }) => {
   let options;
   let series;
   if (unique && total) {
@@ -83,81 +85,135 @@ const Graph: React.FC<{
     series = [Math.round((unique / total) * 100)];
   } else if (timeStamps) {
     let allTimeStamps = [];
-    for (const [key, value] of Object.entries(timeStamps)) {
-      //@ts-ignore
-      // allTimeStamps = [...new Set([...allTimeStamps, ...value])];
-      // allTimeStamps = [...allTimeStamps, ...value];
-      value.forEach(date => {
+    for (const [_, value] of Object.entries(timeStamps)) {
+      value.forEach((date: string) => {
         //@ts-ignore
-        allTimeStamps.push(new Date(date).toUTCString())
-      })
+        allTimeStamps.push(new Date(date).toUTCString().slice(0, 16));
+      });
     }
-    console.log("allTimeStamps", allTimeStamps)
+    allTimeStamps.sort(function (a, b) {
+      //@ts-ignore
+      return new Date(a) - new Date(b);
+    });
+    allTimeStamps = [...new Set(allTimeStamps)];
+    let allObj = {};
+
+    Object.entries(timeStamps).forEach((key) => {
+      let dateCounter = allTimeStamps.reduce((accumulator, value) => {
+        return { ...accumulator, [value]: 0 };
+      }, {});
+      key[1].forEach((element) => {
+        const testDate = new Date(element).toUTCString().slice(0, 16);
+        dateCounter[testDate] = (dateCounter[testDate] || 0) + 1;
+      });
+      allObj[key[0]] = dateCounter;
+    });
+
     options = {
       chart: {
-        id: "basic-bar",
+        type: "bar",
+        // height: 350,
+        stacked: true,
         toolbar: {
-          show: false
+          show: false, // little menu to download graph
         }
       },
       plotOptions: {
         bar: {
-          columnWidth: "50%"
-        }
+          horizontal: false,
+          columnWidth: "35%",
+          borderRadiusApplication: "around",
+          borderRadiusWhenStacked: "last",
+          distributed: false,
+        },
+      },
+      dataLabels: {
+        enabled: false,
       },
       stroke: {
-        width: [4, 0, 0]
+        show: true,
+        width: 2,
+        colors: ["transparent"],
       },
       xaxis: {
-        categories: [allTimeStamps],
-        type: "datetime",
-        datetimeUTC: true,
+        categories: allTimeStamps, //TODO seems ok
         labels: {
-          format: 'dd/MM',
-        }
-        // labels: {
-        //   formatter: function (value, timestamp) {
-        //     return new Date(timestamp) // The formatter function overrides format property
-        // },
+          trim: true,
+          show: true,
+          style: {
+            colors: "#FFFFFF",
+            fontSize: "12px",
+          },
+        },
       },
-      markers: {
-        size: 6,
-        strokeWidth: 3,
-        fillOpacity: 0,
-        strokeOpacity: 0,
-        hover: {
-          size: 8
-        }
+      grid: {
+        show: true,
+        position: "back",
+        borderColor: "#71678A",
+      },
+      legend: {
+        labels: {
+          colors: "#FFFFFF",
+        },
       },
       yaxis: {
-        tickAmount: 3,
-        min: 0,
-        // max: 100
-      }
-    }
+        // title: {
+        //   text: "Findings",
+        //   style: {
+        //     color: "#FFFFFF"
+        //   }
+        // },
+        labels: {
+          show: true,
+          style: {
+            colors: "#FFFFFF",
+            fontSize: "12px",
+          },
+        },
+      },
+      fill: {
+        opacity: 1,
+      },
+      tooltip: {
+        y: {
+          formatter: function (val) {
+            return val; //?? add "findings" ?
+          },
+        },
+        enabled: false,
+      },
+    };
     series = [
       {
         name: "H",
-        type: "column",
-        data: [timeStamps.H]
+        color: "#b52828",
+        data: Object.entries(allObj.H).map((el) => {
+          console.log(el);
+          return el[1];
+        }),
       },
       {
         name: "M",
-        type: "column",
-        data: [timeStamps.M]
+        color: "#F2B340",
+        data: Object.entries(allObj.M).map((el) => {
+          return el[1];
+        }),
       },
       {
         name: "QA",
-        type: "column",
-        data: [timeStamps.QA]
+        color: "#1b86ee",
+        data: Object.entries(allObj.QA).map((el) => {
+          return el[1];
+        }),
       },
       {
         name: "Gas",
-        type: "column",
-        data: [timeStamps.Gas]
-      }
-    ]
-    console.log(timeStamps.H);
+        color: "#d4c5f9",
+        data: Object.entries(allObj.Gas).map((el) => {
+          return el[1];
+        }),
+      },
+    ];
   }
 
   return (
@@ -179,12 +235,12 @@ const Graph: React.FC<{
           // error is thrown from "stroke:{ lineCap: 'round'}"
           options={options}
           series={series}
-          type="line"
-          width="500"
+          type="bar"
+          width="800"
         />
-        )
-        :''
-      }
+      ) : (
+        ""
+      )}
     </>
   );
 };
