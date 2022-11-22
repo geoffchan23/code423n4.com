@@ -146,7 +146,11 @@ async function fetchAwardCalc(contestId, sponsorName, url) {
   if (res.ok) {
     response = await res.json();
   } else {
-    response = 0;
+    response = [{
+      handle: "0xsi",
+      awardCoin: "USDC",
+      awardTotal: 100
+    }];
   }
   return response;
 }
@@ -406,7 +410,7 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
         const judges = await fetchJudges(repoName);
         //! would need to trim = C4 && null
         console.log(
-          judges.judges.filter((el) => el !== null && el !== "C4"),
+          judges.judges.filter((el) => el !== null && el !== "C4" && el !== "Sock" && el !== "Adam Avenir" && el !== "Simon-Busch"),
           "----",
           repoName
         );
@@ -435,7 +439,7 @@ exports.sourceNodes = async ({ actions, getNodes }) => {
             }
           })
           .filter((element) => element !== undefined);
-
+        console.log(responseOverview.overviewGrid, "----", repoName);
         createNodeField({
           node,
           name: `contestOverview`,

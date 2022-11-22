@@ -1,13 +1,13 @@
+import React, { useEffect, useState } from "react";
+// libraries
 import clsx from "clsx";
 import { graphql, Link } from "gatsby";
 import Moralis from "moralis-v1";
-import React, { useEffect, useState } from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import rehypeKatex from "rehype-katex";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import LeaderboardHandle from "../components/LeaderboardHandle";
 // types
 import { FindingsResponse } from "../../types/finding";
 // helpers
@@ -15,6 +15,8 @@ import { getDates } from "../utils/time";
 // hooks
 import useUser from "../hooks/UserContext";
 // components
+import LeaderboardHandle from "../components/LeaderboardHandle";
+import Graph from "../components/Charts/Graph";
 import ClientOnly from "../components/ClientOnly";
 import ContestResults from "../components/ContestResults";
 import Countdown from "../components/Countdown";
@@ -22,10 +24,10 @@ import DefaultLayout from "./DefaultLayout";
 import FindingsList from "../components/FindingsList";
 import WardenDetails from "../components/WardenDetails";
 import ReactMarkdown from "react-markdown";
+import OverviewTable from "../components/OverviewTable/OverviewTable";
 // styles
 //@ts-ignore
 import * as styles from "../components/reporter/widgets/Widgets.module.scss";
-import OverviewTable from "../components/OverviewTable/OverviewTable";
 
 enum FindingsStatus {
   Fetching = "fetching",
@@ -77,7 +79,6 @@ const ContestLayout = (props) => {
   } = fields;
   const { markdownRemark } = props.data;
   const handles = props.data.allHandlesJson.nodes;
-  console.log(start_time, end_time, totalIssues, totalJudged, judges);
 
   const displayTopWardens = handles
     .map((el) => {
@@ -281,7 +282,7 @@ const ContestLayout = (props) => {
                       </div>
                       <div>
                         <p>
-                          {totalJudged}/{totalIssues - 1} Findings evaluated
+                          {totalJudged + 1}/{totalIssues - 1} Findings evaluated
                         </p>
                       </div>
                     </div>
@@ -290,7 +291,6 @@ const ContestLayout = (props) => {
                       <div>
                         {judges && judges.length > 0
                           ? judges.map((judge: string, index: number) => {
-                              console.log(judge);
                               return <p key={`${judge}-${index}`}>{judge}</p>;
                             })
                           : ""}
@@ -318,7 +318,13 @@ const ContestLayout = (props) => {
                             </div>
                           </div>
                         </div>
-                        <div>{/* graph */}</div>
+                        <div>
+                          <Graph
+                            total={contestOverview.total.H}
+                            unique={contestOverview.unique.H}
+                            type={"Radial"}
+                          />
+                        </div>
                       </div>
                       <div className="data-division-container">
                         <div className="key-number-container">
@@ -340,7 +346,13 @@ const ContestLayout = (props) => {
                             </div>
                           </div>
                         </div>
-                        <div>{/* graph */}</div>
+                        <div>
+                          <Graph
+                            total={contestOverview.total.M}
+                            unique={contestOverview.unique.M}
+                            type={"Radial"}
+                          />
+                        </div>
                       </div>
                       <div className="key-number-container">
                         <div>
@@ -351,79 +363,18 @@ const ContestLayout = (props) => {
                     </div>
 
                     <div className="contest-live-judging-container">
-                      <h2 className="live-judging-title">Submission timeline</h2>
-                      
+                      <h2 className="live-judging-title">
+                        Submission timeline
+                      </h2>
+                      <Graph
+                        timeStamps={contestOverview.timeStamps}
+                        type={"Bar"}
+                      />
                     </div>
-
-                    {/* <div className="contest-live-judging-container">
-                      <h2 className="live-judging-title">Total price Pool</h2>
-                      <div className="award-container">
-                        <img
-                          style={{
-                            height: "25px",
-                            width: "25px",
-                            color: "white",
-                            marginRight: "10px",
-                          }}
-                          src="/images/award-icon.svg"
-                          alt="icon of a piece of paper with lines on it to indicate text"
-                        />
-                        <p className="key-number">USDC $500,000</p>
-                      </div>
-                    </div>
-                    <div className="contest-live-judging-container">
-                      <h2 className="live-judging-title">HM Awards</h2>
-                      <p className="key-number">USDC $450,000</p>
-                      <div className="findings-display">
-                        <p>High Risk Findings</p>
-                        <p className="key-number">{contestOverview.total.H}</p>
-                      </div>
-                      <div className="findings-display">
-                        <p>High duplicates</p>
-                        <p className="key-number">{contestOverview.dupesID.H}</p>
-                      </div>
-                      <div className="findings-display">
-                        <p>Medium Risk Findings</p>
-                        <p className="key-number">{contestOverview.total.M}</p>
-                      </div>
-                      <div className="findings-display">
-                        <p>Medium duplicates</p>
-                        <p className="key-number">{contestOverview.dupesID.M}</p>
-                      </div>
-                      <div className="findings-display">
-                        <p>Confirmed Unique Findings</p>
-                        <p className="key-number">
-                          {contestOverview.unique.M + contestOverview.unique.H}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="contest-live-judging-container">
-                      <h2 className="live-judging-title">QA and Gas Awards</h2>
-                      <div className="pool-division-container">
-                        <div className="pool-division">
-                          <p>$ 25,000 USDC</p>
-                          <div className="findings-display">
-                            <p>QA Reports</p>
-                            <p className="key-number">
-                              {contestOverview.total.QA}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="pool-division">
-                          <p>$ 25,000 USDC</p>
-                          <div className="findings-display">
-                            <p>Gas Reports</p>
-                            <p className="key-number">
-                              {contestOverview.total.Gas}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div> */}
                     <div className="contest-live-judging-container">
                       <h2 className="live-judging-title">Participants</h2>
                       <div style={{ textAlign: "left", width: "100%" }}>
-                        <p>{awards.length} wardens participated including:</p>
+                        {/* <p>{awards.length} wardens participated including:</p> */}
                       </div>
                       <div className="contest-live-judging-wardens">
                         {displayTopWardens
