@@ -282,7 +282,7 @@ const ContestLayout = (props) => {
                       </div>
                       <div>
                         <p>
-                          {totalJudged + 1}/{totalIssues - 1} Findings evaluated
+                          {totalJudged}/{totalIssues - 1} Findings evaluated
                         </p>
                       </div>
                     </div>

@@ -1,12 +1,27 @@
 import React from "react";
 import Chart from "react-apexcharts";
-import "./charts.css";
+import "./graph.css";
 
 interface TimeStampsData {
   H: string[];
   M: string[];
   QA: string[];
   Gas: string[];
+}
+
+interface DataObject {
+  H: {
+    [date: string]: number
+  },
+  M: {
+    [date: string]: number
+  },
+  QA: {
+    [date: string]: number
+  },
+  Gas: {
+    [date: string]: number
+  },
 }
 
 const Graph: React.FC<{
@@ -96,7 +111,13 @@ const Graph: React.FC<{
       return new Date(a) - new Date(b);
     });
     allTimeStamps = [...new Set(allTimeStamps)];
-    let allObj = {};
+
+    let allObj: DataObject = {
+      H:{},
+      M:{},
+      QA:{},
+      Gas:{}
+    };
 
     Object.entries(timeStamps).forEach((key) => {
       let dateCounter = allTimeStamps.reduce((accumulator, value) => {
@@ -116,7 +137,7 @@ const Graph: React.FC<{
         stacked: true,
         toolbar: {
           show: false, // little menu to download graph
-        }
+        },
       },
       plotOptions: {
         bar: {
@@ -180,22 +201,15 @@ const Graph: React.FC<{
             return val; //?? add "findings" ?
           },
         },
-        enabled: false,
+        enabled: true,
+        theme: "dark"
       },
     };
     series = [
       {
-        name: "H",
-        color: "#b52828",
-        data: Object.entries(allObj.H).map((el) => {
-          console.log(el);
-          return el[1];
-        }),
-      },
-      {
-        name: "M",
-        color: "#F2B340",
-        data: Object.entries(allObj.M).map((el) => {
+        name: "Gas",
+        color: "#d4c5f9",
+        data: Object.entries(allObj.Gas).map((el) => {
           return el[1];
         }),
       },
@@ -206,10 +220,18 @@ const Graph: React.FC<{
           return el[1];
         }),
       },
+
       {
-        name: "Gas",
-        color: "#d4c5f9",
-        data: Object.entries(allObj.Gas).map((el) => {
+        name: "M",
+        color: "#F2B340",
+        data: Object.entries(allObj.M).map((el) => {
+          return el[1];
+        }),
+      },
+      {
+        name: "H",
+        color: "#b52828",
+        data: Object.entries(allObj.H).map((el) => {
           return el[1];
         }),
       },

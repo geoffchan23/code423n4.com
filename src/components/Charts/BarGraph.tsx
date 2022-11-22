@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Chart from "react-apexcharts";
-import "./charts.css";
+import "./graph.css";
 
 const RadialGraph: React.FC<{ total: number; unique: number }> = ({
   total,
