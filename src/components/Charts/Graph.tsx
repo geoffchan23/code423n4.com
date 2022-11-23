@@ -31,7 +31,7 @@ const Graph: React.FC<{
   timeStamps?: TimeStampsData;
   startTime?: string;
   endTime?: string;
-}> = ({ total, unique, type, timeStamps, startTime, endTime }) => {
+}> = ({ total = 0, unique = 0, type, timeStamps, startTime, endTime }) => {
   let options;
   let series;
   if (unique && total) {
@@ -159,11 +159,22 @@ const Graph: React.FC<{
       xaxis: {
         categories: allTimeStamps, //TODO seems ok
         labels: {
-          trim: true,
+          trim: false,
           show: true,
           style: {
             colors: "#FFFFFF",
             fontSize: "12px",
+          },
+          rotate: 0,
+          offsetY: 10,
+          formatter: function (val, opts) {
+            if (val === allTimeStamps[0] || val === allTimeStamps[allTimeStamps.length-1]) {
+              if (val === allTimeStamps[0]) {
+                return `Start: ${val}`;
+              } else {
+                return `End: ${val}`;
+              }
+            }
           },
         },
       },
