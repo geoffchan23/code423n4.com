@@ -9,6 +9,7 @@ const getApiContestData = async () => {
     return await res.json();
   } catch (err) {
     console.log(err);
+    return [];
   }
 };
 
